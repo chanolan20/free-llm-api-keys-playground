@@ -815,5 +815,113 @@ class PublishKeysTests(unittest.TestCase):
         self.assertTrue(any(cmd[3] == "push" for cmd in commands if len(cmd) > 3))
 
 
+class ApiRequestRetryTests(unittest.TestCase):
+    """Covers docs/plans/2026-05-23-cron-resilience.md: api_request retries on transient KM 5xx."""
+
+    def setUp(self):
+        self._token_patcher = mock.patch.object(publish_keys, "KM_TOKEN", "test-token")
+        self._token_patcher.start()
+        self.addCleanup(self._token_patcher.stop)
+
+    @staticmethod
+    def _make_http_error(status):
+        # urllib.error.HTTPError(url, code, msg, hdrs, fp); fp must support .read().
+        import io
+        return publish_keys.urllib.error.HTTPError(
+            url="https://aiapiv2.pekpik.com/km/keys",
+            code=status,
+            msg="Bad Gateway" if status == 502 else "err",
+            hdrs={},
+            fp=io.BytesIO(b'{"detail":"upstream blip"}'),
+        )
+
+    def _make_ok_response(self, payload):
+        class _Resp:
+            def __enter__(self_inner):
+                return self_inner
+            def __exit__(self_inner, *exc):
+                return False
+            def read(self_inner):
+                import json as _json
+                return _json.dumps(payload).encode("utf-8")
+        return _Resp()
+
+    def test_retries_on_transient_502_then_succeeds(self):
+        ok = self._make_ok_response({"keys": [{"id": 1}]})
+        side_effects = [self._make_http_error(502), ok]
+        with mock.patch.object(publish_keys.urllib.request, "urlopen", side_effect=side_effects) as urlopen, \
+             mock.patch.object(publish_keys.time, "sleep") as sleep:
+            result = publish_keys.api_request("GET", "/keys")
+
+        self.assertEqual(result, {"keys": [{"id": 1}]})
+        self.assertEqual(urlopen.call_count, 2)
+        self.assertEqual(sleep.call_count, 1)  # one sleep between two attempts
+
+    def test_exhausts_retries_then_raises(self):
+        side_effects = [self._make_http_error(502) for _ in range(6)]
+        with mock.patch.object(publish_keys.urllib.request, "urlopen", side_effect=side_effects) as urlopen, \
+             mock.patch.object(publish_keys.time, "sleep"):
+            with self.assertRaises(RuntimeError) as cm:
+                publish_keys.api_request("POST", "/keys/status", {"keys": []}, retry_attempts=6, retry_sleep_seconds=0.0)
+
+        self.assertEqual(urlopen.call_count, 6)
+        self.assertIn("502", str(cm.exception))
+
+    def test_non_transient_404_does_not_retry(self):
+        side_effects = [self._make_http_error(404)]
+        with mock.patch.object(publish_keys.urllib.request, "urlopen", side_effect=side_effects) as urlopen, \
+             mock.patch.object(publish_keys.time, "sleep") as sleep:
+            with self.assertRaises(RuntimeError):
+                publish_keys.api_request("GET", "/missing")
+
+        self.assertEqual(urlopen.call_count, 1)
+        self.assertEqual(sleep.call_count, 0)
+
+    def test_retry_defaults_pulled_from_env(self):
+        # The function signature captures KM_RETRY_ATTEMPTS / KM_RETRY_SLEEP_SECONDS at import time;
+        # ensure the bumped defaults (>=6 attempts, >=3s base) actually landed.
+        import inspect
+        sig = inspect.signature(publish_keys.api_request)
+        self.assertGreaterEqual(sig.parameters["retry_attempts"].default, 6)
+        self.assertGreaterEqual(sig.parameters["retry_sleep_seconds"].default, 3.0)
+
+
+class MainCleanupFailSoftTests(unittest.TestCase):
+    """Covers docs/plans/2026-05-23-cron-resilience.md: cleanup failure must not block create_keys."""
+
+    def _run_main_with_cleanup_failing(self, cleanup_only=False):
+        argv = ["publish_keys.py"] + (["--cleanup-only"] if cleanup_only else [])
+        cleanup_error = RuntimeError("POST /keys/status failed: 502 upstream blip")
+        with mock.patch.object(publish_keys.sys, "argv", argv), \
+             mock.patch.object(publish_keys, "sync_repo_before_publish", return_value=True), \
+             mock.patch.object(publish_keys, "clean_expired_keys", side_effect=cleanup_error), \
+             mock.patch.object(publish_keys, "check_budget", return_value=1000.0), \
+             mock.patch.object(publish_keys, "fetch_recommended_models", return_value=[]), \
+             mock.patch.object(publish_keys, "create_keys", return_value={}) as create, \
+             mock.patch.object(publish_keys, "sync_from_active", return_value={}), \
+             mock.patch.object(publish_keys, "update_readme") as update_readme, \
+             mock.patch.object(publish_keys, "update_docs_index"), \
+             mock.patch.object(publish_keys, "git_commit_and_push"), \
+             mock.patch.object(publish_keys, "log_usage_stats"), \
+             mock.patch.object(publish_keys.sys, "stderr") as stderr:
+            publish_keys.main()
+        stderr_text = "".join(call.args[0] for call in stderr.write.call_args_list if call.args)
+        return create, update_readme, stderr_text
+
+    def test_full_publish_continues_when_cleanup_raises(self):
+        create, update_readme, stderr_text = self._run_main_with_cleanup_failing(cleanup_only=False)
+        self.assertEqual(create.call_count, 1, "create_keys must still run after cleanup failure")
+        self.assertGreaterEqual(update_readme.call_count, 1)
+        self.assertIn("[ALERT]", stderr_text)
+        self.assertIn("cleanup failed", stderr_text)
+
+    def test_cleanup_only_bails_when_cleanup_raises(self):
+        create, update_readme, stderr_text = self._run_main_with_cleanup_failing(cleanup_only=True)
+        # cleanup-only mode has nothing to do without deletions; should not touch README/create.
+        self.assertEqual(create.call_count, 0)
+        self.assertEqual(update_readme.call_count, 0)
+        self.assertIn("[ALERT]", stderr_text)
+
+
 if __name__ == "__main__":
     unittest.main()

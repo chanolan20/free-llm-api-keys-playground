@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """Publish temporary free LLM API keys to the public README.
 
-The script is intentionally self-contained because it runs from cron/GitHub Actions
-against Key Manager. It cleans dead keys, tops up featured public models, updates
-README.md/README_CN.md, then commits and pushes the generated result.
+The script is intentionally self-contained because it runs from the production
+server cron against Key Manager. It cleans dead keys, tops up featured public
+models, updates README.md/README_CN.md, then commits and pushes the generated
+result.
 """
 
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import os
 import re
@@ -24,10 +26,44 @@ from typing import Iterable
 REPO_PATH = str(Path(__file__).resolve().parents[1])
 README_PATH = str(Path(REPO_PATH) / "README.md")
 README_CN_PATH = str(Path(REPO_PATH) / "README_CN.md")
+DOCS_INDEX_PATH = str(Path(REPO_PATH) / "docs" / "index.html")
+DOCS_LIVE_STATUS_CSS = """    /* Live status */
+    .live-status {
+      margin-bottom: 24px; padding: 18px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+    }
+    .live-head {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 16px; margin-bottom: 14px;
+    }
+    .eyebrow {
+      display: block; margin-bottom: 4px; color: #60a5fa;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    }
+    .live-head h2 { font-size: 1.25rem; color: #f8fafc; }
+    .updated { color: #a0b0c0; font-size: 0.78rem; white-space: nowrap; }
+    .status-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+    }
+    .status-card {
+      display: flex; justify-content: space-between; align-items: center;
+      min-height: 44px; padding: 10px 12px; border-radius: 8px;
+      background: rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.08);
+    }
+    .status-card span { color: #b7c3d0; font-size: 0.78rem; line-height: 1.35; }
+    .status-card strong { color: #00d4ff; font-size: 1.05rem; }
+    .live-note { margin-top: 12px; color: #8899aa; font-size: 0.78rem; line-height: 1.5; }
+"""
 
-KM_URL = os.getenv("KEY_MANAGER_URL", "https://aiapiv2.pekpik.com/km")
+KM_URL = os.getenv("KEY_MANAGER_URL") or "https://aiapiv2.pekpik.com/km"
 KM_TOKEN = os.getenv("KEY_MANAGER_TOKEN") or os.getenv("KEY_MANAGER_ADMIN_TOKEN", "")
 TRANSIENT_HTTP_STATUS = {429, 500, 502, 503, 504}
+# Cron interval is 3h, so a 30-60s retry budget is essentially free.
+# Linear backoff: sleep = base * attempt; 6 attempts at base=3.0s ⇒ 3+6+9+12+15 = 45s window.
+KM_RETRY_ATTEMPTS = int(os.getenv("KM_RETRY_ATTEMPTS", "6"))
+KM_RETRY_SLEEP_SECONDS = float(os.getenv("KM_RETRY_SLEEP_SECONDS", "3.0"))
 
 BOT_NAME = os.getenv("GIT_AUTHOR_NAME", "FreeLLMShare Bot")
 BOT_EMAIL = os.getenv("GIT_AUTHOR_EMAIL", "bot@freellmshare.com")
@@ -43,6 +79,8 @@ FEATURED_GROUP_ORDER = [
     "Gemini",
     "DeepSeek",
     MULTI_MODEL_GROUP_EN,
+    "Kimi",
+    "Image / Audio / Embedding",
 ]
 
 FEATURED_MODEL_SPECS = [
@@ -96,6 +134,46 @@ FEATURED_MODEL_SPECS = [
         "desc_en": "Auto-routes across currently healthy low-cost chat backends",
         "desc_cn": "自动路由到当前健康的低成本聊天模型",
     },
+    {
+        "group": "Kimi",
+        "model": "kimi-k2.5",
+        "target": 6,
+        "budget_usd": 20,
+        "rpm": 10,
+        "duration_hours": 48,
+        "desc_en": "Kimi long-context general model",
+        "desc_cn": "Kimi 长上下文通用模型",
+    },
+    {
+        "group": "Image / Audio / Embedding",
+        "model": "dall-e-3",
+        "target": 3,
+        "budget_usd": 20,
+        "rpm": 5,
+        "duration_hours": 48,
+        "desc_en": "Image generation",
+        "desc_cn": "图像生成",
+    },
+    {
+        "group": "Image / Audio / Embedding",
+        "model": "tts-1-hd",
+        "target": 3,
+        "budget_usd": 20,
+        "rpm": 5,
+        "duration_hours": 48,
+        "desc_en": "Text-to-speech",
+        "desc_cn": "语音合成",
+    },
+    {
+        "group": "Image / Audio / Embedding",
+        "model": "text-embedding-3-small",
+        "target": 3,
+        "budget_usd": 20,
+        "rpm": 20,
+        "duration_hours": 48,
+        "desc_en": "Text embeddings",
+        "desc_cn": "文本向量化",
+    },
 ]
 
 GROUP_ALIASES = {
@@ -116,6 +194,7 @@ GROUP_ALIASES = {
 
 MODEL_TO_GROUP = {spec["model"]: spec["group"] for spec in FEATURED_MODEL_SPECS}
 MODEL_TO_SPEC = {spec["model"]: spec for spec in FEATURED_MODEL_SPECS}
+FEATURED_MODEL_IDS = set(MODEL_TO_SPEC)
 
 
 def now_utc8() -> datetime:
@@ -127,7 +206,7 @@ def display_stamp() -> str:
 
 
 def date_stamp() -> str:
-    return datetime.now().strftime("%Y-%m-%d")
+    return now_utc8().strftime("%Y-%m-%d")
 
 
 def api_request(
@@ -135,8 +214,8 @@ def api_request(
     path: str,
     body: dict | None = None,
     *,
-    retry_attempts: int = 3,
-    retry_sleep_seconds: float = 2.0,
+    retry_attempts: int = KM_RETRY_ATTEMPTS,
+    retry_sleep_seconds: float = KM_RETRY_SLEEP_SECONDS,
 ) -> dict:
     if not KM_TOKEN:
         raise RuntimeError("KEY_MANAGER_TOKEN or KEY_MANAGER_ADMIN_TOKEN is required")
@@ -163,12 +242,12 @@ def api_request(
             message = f"{method} {url} failed: {exc.code} {detail[:500]}"
             if exc.code not in TRANSIENT_HTTP_STATUS or attempt == attempts:
                 raise RuntimeError(message) from exc
-            print(f"transient Key Manager error; retrying {attempt}/{attempts}: {message}", file=sys.stderr)
+            print(f"[WARN] transient Key Manager error; retrying {attempt}/{attempts}: {message}", file=sys.stderr)
         except urllib.error.URLError as exc:
             message = f"{method} {url} failed: {exc.reason}"
             if attempt == attempts:
                 raise RuntimeError(message) from exc
-            print(f"transient Key Manager connection error; retrying {attempt}/{attempts}: {message}", file=sys.stderr)
+            print(f"[WARN] transient Key Manager connection error; retrying {attempt}/{attempts}: {message}", file=sys.stderr)
         time.sleep(retry_sleep_seconds * attempt)
 
     raise RuntimeError(f"{method} {url} failed after {attempts} attempts")
@@ -208,36 +287,167 @@ def check_budget() -> float:
     return float(data.get("remaining_budget_usd", 0) or 0)
 
 
-def build_featured_key_requests(active_keys: Iterable[dict], available_models: Iterable[str], remaining_budget_usd: float) -> list[dict]:
+def model_identifier(item) -> str:
+    if isinstance(item, str):
+        return item
+    if not isinstance(item, dict):
+        return ""
+    return str(item.get("id") or item.get("model") or item.get("name") or "").strip()
+
+
+def model_slug(model: str, limit: int = 14) -> str:
+    return re.sub(r"[^a-z0-9]+", "", model.lower())[:limit]
+
+
+def request_slug(target_model: str, request_model: str) -> str:
+    if request_model == target_model:
+        return model_slug(target_model)
+    return f"{model_slug(target_model)}-via-{model_slug(request_model)}"[:32]
+
+
+def active_key_target_model(item: dict) -> str | None:
+    name = str(item.get("name", "")).lower()
+    note = str(item.get("note", "")).lower()
+    for spec in FEATURED_MODEL_SPECS:
+        target_model = spec["model"]
+        if name.startswith(f"free-{model_slug(target_model)}-via-"):
+            return target_model
+        if f"for {target_model.lower()} " in note or note.endswith(f"for {target_model.lower()}"):
+            return target_model
+    return None
+
+
+def _float_or_none(value) -> float | None:
+    if value is None or value == "":
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def recommended_model_has_capacity(item) -> bool:
+    if isinstance(item, dict) and item.get("recommended") is False:
+        return False
+    if not model_identifier(item):
+        return False
+    if not isinstance(item, dict):
+        return True
+
+    for field in ("available", "enabled", "active"):
+        if item.get(field) is False:
+            return False
+
+    for field in ("status", "state", "availability", "health"):
+        value = str(item.get(field, "")).strip().lower()
+        if value in {"disabled", "inactive", "unavailable", "unhealthy", "exhausted", "sold_out", "no_quota", "quota_exhausted"}:
+            return False
+
+    quota_fields = (
+        "remaining_quota",
+        "quota_remaining",
+        "quota",
+        "daily_quota_remaining",
+        "remaining_requests",
+        "requests_remaining",
+        "remaining_budget_usd",
+        "available_budget_usd",
+        "budget_remaining",
+        "remaining_credits",
+        "credits_remaining",
+        "balance_remaining",
+    )
+    for field in quota_fields:
+        value = _float_or_none(item.get(field))
+        if value is not None and value <= 0:
+            return False
+    return True
+
+
+def model_capability(model: str, item: dict | None = None) -> str:
+    hint = ""
+    if item:
+        hint = " ".join(str(item.get(field, "")) for field in ("type", "capability", "category", "mode"))
+    text = f"{model} {hint}".lower()
+    if "embed" in text:
+        return "embedding"
+    if any(token in text for token in ("tts", "speech", "audio", "voice")):
+        return "audio"
+    if any(token in text for token in ("image", "dall", "gpt-image", "flux", "sdxl")):
+        return "image"
+    return "chat"
+
+
+def recommended_model_candidates(recommended_models: Iterable[dict]) -> tuple[dict[str, dict], dict[str, list[dict]]]:
+    direct: dict[str, dict] = {}
+    by_capability: dict[str, list[dict]] = {"chat": [], "image": [], "audio": [], "embedding": []}
+    for item in recommended_models:
+        model = model_identifier(item)
+        if not model or not recommended_model_has_capacity(item):
+            continue
+        meta = item if isinstance(item, dict) else {"id": model, "recommended": True}
+        direct.setdefault(model, meta)
+        by_capability.setdefault(model_capability(model, meta), []).append(meta)
+    return direct, by_capability
+
+
+def select_recommended_model(spec: dict, direct: dict[str, dict], by_capability: dict[str, list[dict]]) -> str | None:
+    model = spec["model"]
+    if model in direct:
+        return model
+    capability = model_capability(model)
+    for candidate in by_capability.get(capability, []):
+        candidate_model = model_identifier(candidate)
+        if candidate_model and candidate_model not in FEATURED_MODEL_IDS:
+            return candidate_model
+    return None
+
+
+def public_key_request(request: dict) -> dict:
+    return {key: value for key, value in request.items() if not key.startswith("_")}
+
+
+def build_featured_key_requests(active_keys: Iterable[dict], recommended_models: Iterable[dict], remaining_budget_usd: float) -> list[dict]:
     """Return Key Manager batch-create payload entries for missing featured keys."""
-    available = set(available_models)
+    direct, by_capability = recommended_model_candidates(recommended_models)
     counts = {spec["model"]: 0 for spec in FEATURED_MODEL_SPECS}
     for item in active_keys:
+        counted = False
         for model in normalize_models(item.get("models") or item.get("model_limits") or item.get("model")):
             if model in counts:
                 counts[model] += 1
+                counted = True
+        if not counted and isinstance(item, dict):
+            target_model = active_key_target_model(item)
+            if target_model in counts:
+                counts[target_model] += 1
 
     remaining = float(remaining_budget_usd)
     today = now_utc8().strftime("%m%d")
     requests: list[dict] = []
     for spec in FEATURED_MODEL_SPECS:
-        model = spec["model"]
-        if model not in available:
+        target_model = spec["model"]
+        request_model = select_recommended_model(spec, direct, by_capability)
+        if not request_model:
             continue
-        missing = max(0, int(spec["target"]) - counts.get(model, 0))
+        missing = max(0, int(spec["target"]) - counts.get(target_model, 0))
         for idx in range(missing):
             budget = float(spec["budget_usd"])
             if remaining < budget:
                 return requests
-            safe_model = re.sub(r"[^a-z0-9]+", "", model.lower())[:14]
             requests.append(
                 {
-                    "name": f"free-{safe_model}-featured-{today}-{idx + 1}",
-                    "models": [model],
+                    "name": f"free-{request_slug(target_model, request_model)}-featured-{today}-{idx + 1}",
+                    "models": [request_model],
                     "budget_usd": budget,
                     "duration_hours": int(spec["duration_hours"]),
                     "rpm": int(spec["rpm"]),
-                    "note": "public README featured key",
+                    "note": f"public README featured key for {target_model} using {request_model}",
+                    "_display_group": spec["group"],
+                    "_display_model": request_model,
+                    "_display_desc_en": spec["desc_en"] if request_model == target_model else f"KM recommended alternative for {spec['desc_en']}",
+                    "_display_desc_cn": spec["desc_cn"] if request_model == target_model else f"KM 推荐的可用替代模型：{spec['desc_cn']}",
+                    "_requested_for_model": target_model,
                 }
             )
             remaining -= budget
@@ -246,28 +456,35 @@ def build_featured_key_requests(active_keys: Iterable[dict], available_models: I
 
 def create_keys(recommended_models: list[dict], remaining_budget_usd: float) -> dict[str, list[dict]]:
     active_keys = list_active_keys()
-    available = {m.get("id") or m.get("model") for m in recommended_models}
-    available.update({spec["model"] for spec in FEATURED_MODEL_SPECS})
-    requests = build_featured_key_requests(active_keys, available, remaining_budget_usd)
+    requests = build_featured_key_requests(active_keys, recommended_models, remaining_budget_usd)
     if not requests:
         return {}
-    data = api_request("POST", "/keys/batch", {"keys": requests})
+    data = api_request("POST", "/keys/batch", {"keys": [public_key_request(request) for request in requests]})
     created = data.get("created", [])
+    request_meta_by_name = {request["name"]: request for request in requests}
+    request_meta_by_model: dict[str, list[dict]] = {}
+    for request in requests:
+        request_meta_by_model.setdefault(request["models"][0], []).append(request)
     grouped: dict[str, list[dict]] = {}
     for item in created:
         models = normalize_models(item.get("models"))
         model = models[0] if models else ""
-        group = MODEL_TO_GROUP.get(model, model)
+        request_meta = request_meta_by_name.get(str(item.get("name", "")))
+        if request_meta is None and model in request_meta_by_model and request_meta_by_model[model]:
+            request_meta = request_meta_by_model[model].pop(0)
+        group = (request_meta or {}).get("_display_group") or MODEL_TO_GROUP.get(model, model)
         spec = MODEL_TO_SPEC.get(model, {})
+        desc_en = (request_meta or {}).get("_display_desc_en") or spec.get("desc_en", "")
+        desc_cn = (request_meta or {}).get("_display_desc_cn") or spec.get("desc_cn", spec.get("desc_en", ""))
         grouped.setdefault(group, []).append(
             {
                 "key": item.get("key", ""),
-                "model": model,
+                "model": (request_meta or {}).get("_display_model") or model,
                 "budget": f"${int(float(item.get('budget_usd', 0)))}",
                 "rpm": f"{int(item.get('rpm', spec.get('rpm', 5)))} RPM",
                 "expires": str(item.get("expires_at", ""))[:10],
-                "use_case": spec.get("desc_en", ""),
-                "use_case_cn": spec.get("desc_cn", spec.get("desc_en", "")),
+                "use_case": desc_en,
+                "use_case_cn": desc_cn,
             }
         )
     return grouped
@@ -424,13 +641,13 @@ def start_here_block(lang: str) -> str:
     if lang == "cn":
         return (
             "### 重点模型\n\n"
-            "覆盖 GPT-5.5、Claude Opus 4.7、Gemini、DeepSeek、smart-chat 等模型。\n"
-            "Key 会全天轮换；当旗舰模型暂时补货中时，自动以 smart-chat 兜底 Key 替代，复制即可请求。\n\n"
+            "覆盖 GPT-5.5、Claude Opus 4.7、Gemini、DeepSeek、smart-chat、Kimi、图像、语音和向量模型。\n"
+            "发布器只展示真实 Key；目标模型没有 KM 推荐或额度不足时，会尝试 KM 推荐且有额度的同类模型，仍不可用则留空不展示。\n\n"
         )
     return (
         "### Featured models\n\n"
-        "GPT-5.5, Claude Opus 4.7, Gemini, DeepSeek, smart-chat and more.\n"
-        "Keys rotate throughout the day. When a flagship is restocking we surface a smart-chat fallback key so you can always copy and call.\n\n"
+        "GPT-5.5, Claude Opus 4.7, Gemini, DeepSeek, smart-chat, Kimi, image, audio, and embeddings.\n"
+        "The publisher only shows real keys. If a target model has no KM recommendation or quota, it tries a quota-backed KM-recommended model in the same capability; otherwise that shelf stays hidden.\n\n"
     )
 
 
@@ -507,6 +724,21 @@ def first_existing_heading_index(text: str, groups: Iterable[str]) -> int | None
     return min(positions) if positions else None
 
 
+def available_keys_insert_anchor(text: str) -> int:
+    bounds = available_keys_bounds(text)
+    if bounds is None:
+        changelog = text.find("## 📅 Changelog")
+        return changelog if changelog != -1 else len(text)
+
+    start, end = bounds
+    section = text[start:end]
+    headings = list(re.finditer(r"^### (.+)$", section, re.MULTILINE))
+    shelf_positions = [heading.start() for heading in headings if spec_for_heading(heading.group(1))]
+    if shelf_positions:
+        return start + min(shelf_positions)
+    return end
+
+
 def insert_sections(text: str, grouped_keys: dict[str, list[dict]], lang: str) -> str:
     if not grouped_keys:
         return text
@@ -515,42 +747,24 @@ def insert_sections(text: str, grouped_keys: dict[str, list[dict]], lang: str) -
     groups_to_replace += [group for group in grouped_keys if group not in groups_to_replace]
     text = remove_group_sections(text, groups_to_replace)
 
-    anchor_after_group = {
-        "DeepSeek": [MULTI_MODEL_GROUP_EN, "Gemini", "GPT-5.5", "Claude Opus 4.7", "Claude Sonnet", "Kimi", "Image / Audio / Embedding"],
-        MULTI_MODEL_GROUP_EN: ["Gemini", "GPT-5.5", "Claude Opus 4.7", "Claude Sonnet", "Kimi", "Image / Audio / Embedding"],
-        "Gemini": ["GPT-5.5", "Claude Opus 4.7", "Claude Sonnet", "Kimi", "Image / Audio / Embedding"],
-        # GPT-5.5 is first in FEATURED_GROUP_ORDER — anchor to Claude Opus so
-        # it pins at the very top of the Available Keys shelf.
-        "GPT-5.5": ["Claude Opus 4.7", "Claude Sonnet", "Kimi", "Image / Audio / Embedding"],
-        "Claude Opus 4.7": ["Gemini", "DeepSeek", MULTI_MODEL_GROUP_EN, "Kimi", "Image / Audio / Embedding"],
-        "Claude Sonnet": ["Kimi", "Image / Audio / Embedding"],
-    }
-
-    inserted_groups = []
+    sections = []
+    inserted_groups = set()
     for group in FEATURED_GROUP_ORDER:
         if not grouped_keys.get(group):
             continue
-        section = render_group_section(group, grouped_keys[group], lang)
-        anchor = first_existing_heading_index(text, anchor_after_group.get(group, []))
-        if anchor is None:
-            anchor = text.find("## 📅 Changelog")
-        text = text[:anchor] + section + text[anchor:] if anchor != -1 else text + "\n" + section
-        inserted_groups.append(group)
+        sections.append(render_group_section(group, grouped_keys[group], lang))
+        inserted_groups.add(group)
 
-    other_groups = [group for group in grouped_keys if group not in inserted_groups]
-    for group in other_groups:
-        section = render_group_section(group, grouped_keys[group], lang)
-        if group == MULTI_MODEL_GROUP_EN:
-            anchor = first_existing_heading_index(text, ["Image / Audio / Embedding"])
-            if anchor is None:
-                anchor = text.find("## 📅 Changelog")
-        elif group == "DeepSeek":
-            anchor = first_existing_heading_index(text, ["Gemini", "Kimi", MULTI_MODEL_GROUP_EN])
-            if anchor is None:
-                anchor = text.find("## 📅 Changelog")
-        else:
-            anchor = text.find("## 📅 Changelog")
-        text = text[:anchor] + section + text[anchor:] if anchor != -1 else text + "\n" + section
+    for group in grouped_keys:
+        if group in inserted_groups:
+            continue
+        sections.append(render_group_section(group, grouped_keys[group], lang))
+
+    if not sections:
+        return text
+    anchor = available_keys_insert_anchor(text)
+    block = "\n".join(sections)
+    text = text[:anchor].rstrip() + "\n\n" + block + "\n" + text[anchor:].lstrip("\n")
     return re.sub(r"\n{4,}", "\n\n\n", text)
 
 
@@ -589,10 +803,8 @@ def update_timestamp(text: str, lang: str) -> str:
 def count_table_keys(text: str) -> int:
     """Count unique real `sk-` keys in Markdown tables.
 
-    - Rows that carry the smart-chat `<!-- fallback -->` marker are ignored
-      (they are a duplicate of a smart-chat row already counted elsewhere).
-    - The same `sk-` token appearing in multiple rows only counts once so the
-      shelf never double-counts fallback references.
+    - Legacy synthetic rows carrying the `<!-- fallback -->` marker are ignored.
+    - The same `sk-` token appearing in multiple rows only counts once.
     """
     seen: set[str] = set()
     for line in text.splitlines():
@@ -674,7 +886,7 @@ MODEL_SHELF = [
         "group": "Image / Audio / Embedding",
         "title_en": "Image / Audio / Embedding",
         "title_cn": "图像 / 语音 / 向量化",
-        "model": "dall-e-3 / tts / embeddings",
+        "model": "dall-e-3 / tts-1-hd / text-embedding-3-small",
         "desc_en": "Image, audio, and embedding models",
         "desc_cn": "图像、语音和向量模型",
         "aliases": ["Image / Audio / Embedding", "图像 / 语音 / 向量化"],
@@ -692,84 +904,17 @@ def shelf_header(lang: str) -> str:
     return "| Key | Model | Status | Budget | Rate Limit | Expires | Description |\n|-----|-------|--------|--------|------------|---------|-------------|"
 
 
-def restocking_row(spec: dict, lang: str) -> str:
-    if lang == "cn":
-        return (
-            f"| 补货中 | {spec['model']} | 暂时无可用 Key | - | - | 下次刷新 | "
-            f"{spec['desc_cn']} |"
-        )
-    return (
-        f"| Restocking | {spec['model']} | Temporarily unavailable | - | - | Next refresh | "
-        f"{spec['desc_en']} |"
-    )
-
-
-def pick_fallback_key(rows_by_group: dict[str, list[str]]) -> str | None:
-    """Return the first real `sk-` row from the smart-chat / Multi-Model group."""
-    for group in (MULTI_MODEL_GROUP_EN, MULTI_MODEL_GROUP_LEGACY_EN):
-        for row in rows_by_group.get(group, []):
-            if FALLBACK_MARKER in row:
-                continue
-            if re.match(r"^\|\s*`sk-[A-Za-z0-9]+`\s*\|", row):
-                return row
-    return None
-
-
-def _split_table_cells(row: str) -> list[str] | None:
-    if not row.startswith("|") or not row.rstrip().endswith("|"):
-        return None
-    parts = row.strip().strip("|").split("|")
-    return [part.strip() for part in parts]
-
-
-def adapt_fallback_row(smart_row: str, spec: dict, lang: str) -> str | None:
-    """Rewrite a smart-chat key row to act as a fallback for a flagship shelf.
-
-    Keeps `key`, `budget`, `rate limit`, `expires` from smart-chat; overrides
-    the `model` column (so users clearly see it routes to the target flagship),
-    the `status` column, and the `description` column. A trailing HTML comment
-    lets `count_table_keys` skip this duplicate to avoid inflating the badge.
-    """
-    cells = _split_table_cells(smart_row)
-    if not cells or len(cells) < 7:
-        return None
-    key_cell, _model, _status, budget, rpm, expires, *rest_desc = cells
-    if not re.match(r"^`sk-[A-Za-z0-9]+`$", key_cell):
-        return None
-    if lang == "cn":
-        model_cell = f"smart-chat ({spec['model']} 兜底)"
-        status_cell = "🛟 兜底"
-        desc_cell = f"{spec['desc_cn']} — 补货期间由 smart-chat 自动路由"
-    else:
-        model_cell = f"smart-chat ({spec['model']} fallback)"
-        status_cell = "🛟 Fallback"
-        desc_cell = f"{spec['desc_en']} — auto-routes via smart-chat while restocking"
-    row = (
-        f"| {key_cell} | {model_cell} | {status_cell} | {budget} | {rpm} | "
-        f"{expires} | {desc_cell} | {FALLBACK_MARKER}"
-    )
-    return row
-
-
-def rows_for_shelf_spec(spec: dict, rows_by_group: dict[str, list[str]], fallback: str | None, lang: str) -> list[str]:
-    """Resolve rows for a given shelf entry, using smart-chat fallback when empty.
+def rows_for_shelf_spec(spec: dict, rows_by_group: dict[str, list[str]], lang: str) -> list[str]:
+    """Resolve rows for a given shelf entry.
 
     - Real rows always win.
-    - If the shelf entry is the smart-chat / Multi-Model itself, fall through
-      to `restocking_row` (we never point smart-chat at itself as fallback).
-    - Other flagship/shelf entries with no real key adopt the fallback row if
-      available; otherwise show the legacy Restocking placeholder.
+    - Empty shelf entries stay hidden so the README never shows dead rows or
+      synthetic replacement rows.
     """
     real_rows = [row for row in rows_by_group.get(spec["group"], []) if FALLBACK_MARKER not in row]
     if real_rows:
         return real_rows
-    if spec["group"] in (MULTI_MODEL_GROUP_EN, MULTI_MODEL_GROUP_LEGACY_EN):
-        return [restocking_row(spec, lang)]
-    if fallback:
-        adapted = adapt_fallback_row(fallback, spec, lang)
-        if adapted:
-            return [adapted]
-    return [restocking_row(spec, lang)]
+    return []
 
 
 def spec_for_heading(title: str) -> dict | None:
@@ -811,9 +956,10 @@ def available_keys_bounds(text: str) -> tuple[int, int] | None:
 def render_shelf_section(rows_by_group: dict[str, list[str]], lang: str) -> str:
     sections = []
     stamp = display_stamp()
-    fallback = pick_fallback_key(rows_by_group)
     for spec in MODEL_SHELF:
-        rows = rows_for_shelf_spec(spec, rows_by_group, fallback, lang)
+        rows = rows_for_shelf_spec(spec, rows_by_group, lang=lang)
+        if not rows:
+            continue
         sections.append(
             f"### {shelf_title(spec, lang)} `{stamp}`\n\n"
             + shelf_header(lang)
@@ -879,11 +1025,10 @@ def remove_empty_shelf_sections_from_segment(segment: str) -> str:
 def remove_any_shelf_sections_from_segment(segment: str) -> str:
     """Drop any shelf-spec heading block found outside of ## 📋 Available Keys.
 
-    When a previous render placed a duplicate (e.g. Opus as both the anchored
-    first insertion and a tail-appended fallback), the tail copy would linger
-    after the License section. Those belong inside the Available Keys section
-    only, so we strip them wholesale — empty or not — wherever we find them
-    outside that boundary.
+    When a previous render placed a duplicate model block after the License
+    section, that copy would linger. Shelf blocks belong inside the Available
+    Keys section only, so we strip them wholesale — empty or not — wherever we
+    find them outside that boundary.
     """
     headings = list(re.finditer(r"^### (.+)$", segment, re.MULTILINE))
     if not headings:
@@ -920,8 +1065,8 @@ def remove_orphan_empty_model_sections(text: str) -> str:
 
 MAX_VISIBLE_EMPTY_GROUPS = 2
 _UNAVAILABLE_SUMMARY = {
-    "en": "Temporarily unavailable models",
-    "cn": "暂时不可用模型",
+    "en": "Models without a current direct key",
+    "cn": "当前无直接 Key 的模型",
 }
 
 
@@ -996,6 +1141,146 @@ def models_summary(grouped_keys: dict[str, list[dict]]) -> str:
     return ", ".join(models)
 
 
+def normalize_static_copy(text: str, lang: str) -> str:
+    if lang == "cn":
+        text = re.sub(
+            r"> 新 Key 每天\u8865\u8d27 \*\*2 次\*\*，失效 Key 全天自动清理。每个 Key 预算 \$20-\$100，有效期 24-48 小时。",
+            "> 新 Key 由服务器定时任务每天多次发布，失效 Key 全天自动清理。每个 Key 预算 $20-$100，有效期 24-48 小时。",
+            text,
+        )
+        text = re.sub(
+            r"Key 是公开共享的，额度可能已被用完。本项目新 Key \*\*每天\u8865\u8d27 2 次\*\*，失效 Key 全天自动清理——稍后回来即可。也可以 \*\*Watch → Releases\*\* 接收通知。",
+            "Key 是公开共享的，额度可能已被用完。服务器定时任务每天多次发布新 Key，并全天清理失效 Key；稍后回来即可看到最新可用 Key。也可以 **Watch → Releases** 接收通知。",
+            text,
+        )
+        return text
+
+    text = re.sub(
+        r"> New keys are " + "restock" + r"ed \*\*" + "twice" + r"\s+daily\*\*\. Expired keys are cleaned throughout the day\. Each key has a budget \(\$20-\$100\) and expires in 24-48 hours\.",
+        "> New keys are published multiple times per day by the server cron. Expired keys are cleaned throughout the day. Each key has a budget ($20-$100) and expires in 24-48 hours.",
+        text,
+    )
+    text = re.sub(
+        r"Keys are shared publicly, so they may run out of budget\. This repo " + "restock" + r"s new keys \*\*" + "twice" + r"\s+daily\*\* and cleans expired keys throughout the day — just come back later for fresh keys\. You can also \*\*Watch → Releases\*\* to get notified\.",
+        "Keys are shared publicly, so they may run out of budget. The server cron publishes fresh keys multiple times per day and cleans expired keys throughout the day, so come back later for currently available keys. You can also **Watch → Releases** to get notified.",
+        text,
+    )
+    return text
+
+
+def extract_docs_index_summary(readme_text: str) -> tuple[str, int, list[tuple[str, int]]]:
+    updated_match = re.search(r"> ⏰ Last updated:\s*(.*?)\s*\(UTC\+8\)", readme_text)
+    updated = updated_match.group(1) if updated_match else now_utc8().strftime("%Y-%m-%d %H:%M")
+
+    bounds = available_keys_bounds(readme_text)
+    section = readme_text
+    if bounds is not None:
+        start, end = bounds
+        section = readme_text[start:end]
+
+    groups: list[tuple[str, int]] = []
+    headings = list(re.finditer(r"^### (.+)$", section, re.MULTILINE))
+    for idx, heading in enumerate(headings):
+        title = heading.group(1).split(" `", 1)[0].strip()
+        block_end = headings[idx + 1].start() if idx + 1 < len(headings) else len(section)
+        block = section[heading.end():block_end]
+        count = sum(1 for line in block.splitlines() if re.match(r"^\|\s*`sk-[A-Za-z0-9]+`\s*\|", line))
+        if count:
+            groups.append((title, count))
+
+    return updated, count_table_keys(readme_text), groups
+
+
+def docs_index_live_block(readme_text: str) -> str:
+    updated, total, groups = extract_docs_index_summary(readme_text)
+    cards = "\n".join(
+        f'        <div class="status-card"><span>{html.escape(name)}</span><strong>{count}</strong></div>'
+        for name, count in groups
+    )
+    if not cards:
+        cards = '        <div class="status-card"><span>No live key shelf</span><strong>0</strong></div>'
+    return (
+        "<!-- live-status:start -->\n"
+        '  <section class="live-status" aria-label="Live public key inventory">\n'
+        '    <div class="live-head">\n'
+        "      <div>\n"
+        '        <span class="eyebrow">Live public keys</span>\n'
+        f"        <h2>{total} keys available now</h2>\n"
+        "      </div>\n"
+        f'      <span class="updated">Updated {html.escape(updated)} UTC+8</span>\n'
+        "    </div>\n"
+        '    <div class="status-grid">\n'
+        f"{cards}\n"
+        "    </div>\n"
+        '    <p class="live-note">The server publishes fresh keys every 3 hours and hides shelves without quota-backed real keys.</p>\n'
+        "  </section>\n"
+        "<!-- live-status:end -->"
+    )
+
+
+def update_docs_index(readme_path: str = README_PATH, docs_index_path: str = DOCS_INDEX_PATH) -> None:
+    docs_path = Path(docs_index_path)
+    readme_file = Path(readme_path)
+    if not docs_path.exists() or not readme_file.exists():
+        return
+
+    text = docs_path.read_text(encoding="utf-8")
+    readme_text = readme_file.read_text(encoding="utf-8")
+    block = docs_index_live_block(readme_text)
+
+    if ".live-status" not in text:
+        text = text.replace("    /* Tabs */", DOCS_LIVE_STATUS_CSS + "\n    /* Tabs */", 1)
+
+    if "<!-- live-status:start -->" in text and "<!-- live-status:end -->" in text:
+        text = re.sub(r"<!-- live-status:start -->.*?<!-- live-status:end -->", block, text, flags=re.DOTALL)
+    else:
+        tabs = "  <!-- Tabs -->"
+        text = text.replace(tabs, block + "\n\n" + tabs, 1)
+
+    text = text.replace("Free LLM API Playground — Chat with GPT-5.4, Claude, DeepSeek, Gemini for Free", "Free LLM API Playground — Chat with GPT-5.5, Claude, DeepSeek, Gemini for Free")
+    text = text.replace("Use free API keys to chat with GPT-5.4, Claude, DeepSeek, Gemini", "Use free API keys to chat with GPT-5.5, Claude Opus, DeepSeek, Gemini")
+    text = text.replace("Chat with GPT-5.4, Claude, DeepSeek, Gemini", "Chat with GPT-5.5, Claude Opus, DeepSeek, Gemini")
+    text = text.replace("chat with GPT-5.4, Claude, DeepSeek, Gemini", "chat with GPT-5.5, Claude Opus, DeepSeek, Gemini")
+    text = text.replace("Supports GPT-5.4, Claude Opus 4.7", "Supports GPT-5.5, Claude Opus 4.7")
+    text = text.replace("GPT-5.4, GPT-5.4 Mini, GPT-5.4 Pro, Claude Opus 4.7", "GPT-5.5, GPT-5.4 Mini, Claude Opus 4.7")
+    text = text.replace("Free LLM API Playground — GPT-5.4 / Claude / DeepSeek / Gemini / Grok / 90+ Models", "Free LLM API Playground — GPT-5.5 / Claude Opus / DeepSeek / Gemini / Grok / 90+ Models")
+    text = text.replace(
+        """        <span class="chip active" onclick="pickModel(this,'gpt-5.4')">GPT-5.4</span>
+        <span class="chip" onclick="pickModel(this,'claude-sonnet-4-6')">Claude</span>
+        <span class="chip" onclick="pickModel(this,'deepseek-chat')">DeepSeek</span>
+        <span class="chip" onclick="pickModel(this,'gpt-5.4-mini')">GPT-5.4 Mini</span>
+        <span class="chip" onclick="pickModel(this,'gemini-2.5-pro')">Gemini</span>
+        <span class="chip" onclick="pickModel(this,'mistral-medium-latest')">Mistral</span>
+        <span class="chip" onclick="pickModel(this,'codestral-latest')">Codestral</span>
+        <span class="chip" onclick="pickModel(this,'smart-chat')">Smart (Auto)</span>""",
+        """        <span class="chip active" onclick="pickModel(this,'smart-chat')">Smart (Auto)</span>
+        <span class="chip" onclick="pickModel(this,'gpt-5.5')">GPT-5.5</span>
+        <span class="chip" onclick="pickModel(this,'claude-opus-4-7')">Claude Opus</span>
+        <span class="chip" onclick="pickModel(this,'deepseek-chat')">DeepSeek</span>
+        <span class="chip" onclick="pickModel(this,'gemini-2.5-flash')">Gemini</span>
+        <span class="chip" onclick="pickModel(this,'mistral-medium-latest')">Mistral</span>
+        <span class="chip" onclick="pickModel(this,'codestral-latest')">Codestral</span>""",
+    )
+    text = text.replace(
+        """        <span class="chip active" onclick="pickVerifyModel(this,'gpt-5.4')">GPT-5.4</span>
+        <span class="chip" onclick="pickVerifyModel(this,'claude-sonnet-4-6')">Claude</span>
+        <span class="chip" onclick="pickVerifyModel(this,'deepseek-chat')">DeepSeek</span>
+        <span class="chip" onclick="pickVerifyModel(this,'gpt-5.4-mini')">GPT-5.4 Mini</span>
+        <span class="chip" onclick="pickVerifyModel(this,'gemini-2.5-pro')">Gemini</span>
+        <span class="chip" onclick="pickVerifyModel(this,'mistral-medium-latest')">Mistral</span>""",
+        """        <span class="chip active" onclick="pickVerifyModel(this,'smart-chat')">Smart (Auto)</span>
+        <span class="chip" onclick="pickVerifyModel(this,'gpt-5.5')">GPT-5.5</span>
+        <span class="chip" onclick="pickVerifyModel(this,'claude-opus-4-7')">Claude Opus</span>
+        <span class="chip" onclick="pickVerifyModel(this,'deepseek-chat')">DeepSeek</span>
+        <span class="chip" onclick="pickVerifyModel(this,'gemini-2.5-flash')">Gemini</span>
+        <span class="chip" onclick="pickVerifyModel(this,'mistral-medium-latest')">Mistral</span>""",
+    )
+    text = text.replace("let chatModel = 'gpt-5.4';", "let chatModel = 'smart-chat';")
+    text = text.replace("let verifyModel = 'gpt-5.4';", "let verifyModel = 'smart-chat';")
+
+    docs_path.write_text(text, encoding="utf-8")
+
+
 def changelog_line(grouped_keys: dict[str, list[dict]], deleted_count: int, lang: str) -> str | None:
     created_count = sum(len(rows) for rows in grouped_keys.values())
     if created_count == 0 and deleted_count == 0:
@@ -1006,7 +1291,51 @@ def changelog_line(grouped_keys: dict[str, list[dict]], deleted_count: int, lang
     return f"- 🆕 Added {created_count} keys ({summary}), cleaned {deleted_count} expired"
 
 
+def restore_orphan_changelog(text: str, lang: str) -> str:
+    if "## 📅 Changelog" in text:
+        return text
+
+    summary = "<summary><b>显示更新历史</b></summary>" if lang == "cn" else "<summary><b>Show changelog history</b></summary>"
+    summary_idx = text.find(summary)
+    date_matches = list(re.finditer(r"(?:^|\n)### \d{4}-\d{2}-\d{2}\n", text))
+    if summary_idx == -1 or not date_matches:
+        star_idx = text.find("\n## 📈 Star History")
+        insert_at = star_idx if star_idx != -1 else len(text)
+        block = f"\n\n## 📅 Changelog\n\n<details>\n{summary}\n\n</details>\n\n---\n"
+        return text[:insert_at].rstrip() + block + text[insert_at:]
+
+    start_match = None
+    for match in date_matches:
+        if match.start() < summary_idx:
+            start_match = match
+    if start_match is None:
+        return text
+
+    start = start_match.start()
+    if text[start:start + 1] == "\n":
+        start += 1
+    sep_start = text.rfind("\n---\n\n", 0, start)
+    if sep_start != -1:
+        start = sep_start + len("\n---\n\n")
+
+    close_idx = text.find("</details>", summary_idx)
+    if close_idx == -1:
+        return text
+    section_end = close_idx + len("</details>")
+    trailing_sep = re.match(r"\n{0,2}---\n{0,2}", text[section_end:])
+    if trailing_sep:
+        section_end += trailing_sep.end()
+
+    body = text[start:section_end]
+    body = re.sub(r"\n*<details>\n<summary><b>.*?</b></summary>\n\n?", "\n", body)
+    body = body.replace("</details>", "").strip()
+    body = re.sub(r"\n*---\s*$", "", body).strip()
+    wrapped = f"## 📅 Changelog\n\n<details>\n{summary}\n\n{body}\n</details>\n\n---\n\n"
+    return text[:start] + wrapped + text[section_end:].lstrip("\n")
+
+
 def ensure_changelog_details(text: str, lang: str) -> str:
+    text = restore_orphan_changelog(text, lang)
     idx = text.find("## 📅 Changelog")
     if idx == -1 or "<details>" in text[idx : idx + 300]:
         return text
@@ -1051,12 +1380,14 @@ def update_changelog(text: str, grouped_keys: dict[str, list[dict]], deleted_cou
         return text
     today = date_stamp()
     today_header = f"### {today}\n"
-    if line in text:
-        return text
     close_idx = text.find("</details>", idx)
     section_end = close_idx if close_idx != -1 else (text.find("\n## ", idx + 1) if text.find("\n## ", idx + 1) != -1 else len(text))
     today_idx = text.find(today_header, idx, section_end)
     if today_idx != -1:
+        next_day_idx = text.find("\n### ", today_idx + len(today_header), section_end)
+        today_end = next_day_idx if next_day_idx != -1 else section_end
+        if line in text[today_idx:today_end]:
+            return text
         insert_at = today_idx + len(today_header)
         return text[:insert_at] + line + "\n" + text[insert_at:]
     insert_at = text.find("\n", idx + len("## 📅 Changelog"))
@@ -1073,6 +1404,7 @@ def update_readme(path: str, grouped_keys: dict[str, list[dict]], deleted_keys: 
     text = p.read_text(encoding="utf-8")
     text = remove_key_rows(text, deleted_keys)
     text = update_timestamp(text, lang)
+    text = normalize_static_copy(text, lang)
     text = ensure_start_here(text, lang)
     text = dedupe_start_here(text, lang)
     text = insert_sections(text, grouped_keys, lang)
@@ -1140,20 +1472,20 @@ def _readme_has_meaningful_diff(paths: Iterable[str]) -> bool:
 
 
 def git_commit_and_push(new_count: int, deleted_count: int) -> None:
-    paths = [README_PATH, README_CN_PATH]
+    paths = [README_PATH, README_CN_PATH, DOCS_INDEX_PATH]
     if contains_conflict_markers(paths):
         print("README contains conflict markers; skip commit", file=sys.stderr)
         return
-    subprocess.run(["git", "-C", REPO_PATH, "add", "README.md", "README_CN.md"], capture_output=True, text=True)
+    subprocess.run(["git", "-C", REPO_PATH, "add", "README.md", "README_CN.md", "docs/index.html"], capture_output=True, text=True)
     diff = subprocess.run(["git", "-C", REPO_PATH, "diff", "--cached", "--quiet"], capture_output=True, text=True)
     if diff.returncode == 0:
         return
     # When nothing new or interesting changed (only timestamps), drop the
     # diff quietly instead of shipping a noisy commit. This keeps the public
     # repo history readable and maximises SEO / star-worthy "activity" signal.
-    if new_count == 0 and deleted_count == 0 and not _readme_has_meaningful_diff(["README.md", "README_CN.md"]):
-        subprocess.run(["git", "-C", REPO_PATH, "reset", "HEAD", "--", "README.md", "README_CN.md"], capture_output=True, text=True)
-        subprocess.run(["git", "-C", REPO_PATH, "checkout", "--", "README.md", "README_CN.md"], capture_output=True, text=True)
+    if new_count == 0 and deleted_count == 0 and not _readme_has_meaningful_diff(["README.md", "README_CN.md", "docs/index.html"]):
+        subprocess.run(["git", "-C", REPO_PATH, "reset", "HEAD", "--", "README.md", "README_CN.md", "docs/index.html"], capture_output=True, text=True)
+        subprocess.run(["git", "-C", REPO_PATH, "checkout", "--", "README.md", "README_CN.md", "docs/index.html"], capture_output=True, text=True)
         return
     msg = f"feat: +{new_count} keys, -{deleted_count} expired ({date_stamp()} {now_utc8().strftime('%H:%M')})"
     env = os.environ.copy()
@@ -1163,8 +1495,12 @@ def git_commit_and_push(new_count: int, deleted_count: int) -> None:
         "GIT_COMMITTER_NAME": BOT_NAME,
         "GIT_COMMITTER_EMAIL": BOT_EMAIL,
     })
-    subprocess.run(["git", "-C", REPO_PATH, "commit", "-m", msg], capture_output=True, text=True)
-    subprocess.run(["git", "-C", REPO_PATH, "push"], capture_output=True, text=True)
+    commit = subprocess.run(["git", "-C", REPO_PATH, "commit", "-m", msg], capture_output=True, text=True)
+    if commit.returncode != 0:
+        raise subprocess.CalledProcessError(commit.returncode, commit.args, output=commit.stdout, stderr=commit.stderr)
+    push = subprocess.run(["git", "-C", REPO_PATH, "push"], capture_output=True, text=True)
+    if push.returncode != 0:
+        raise subprocess.CalledProcessError(push.returncode, push.args, output=push.stdout, stderr=push.stderr)
 
 
 def log_usage_stats() -> None:
@@ -1183,7 +1519,18 @@ def main() -> None:
     if not sync_repo_before_publish():
         return
 
-    deleted_keys, warn_keys = clean_expired_keys()
+    try:
+        deleted_keys, warn_keys = clean_expired_keys()
+    except RuntimeError as exc:
+        print(
+            f"[ALERT] cleanup failed (will retry on next cleanup-only cron): {exc}",
+            file=sys.stderr,
+        )
+        deleted_keys, warn_keys = [], []
+        if args.cleanup_only:
+            # Nothing else for this run to do — bail without touching README.
+            return
+
     if args.cleanup_only:
         # Pull any active server-side keys that the README currently forgets —
         # the main source of "shelf looks half empty" drift. Nothing gets
@@ -1191,6 +1538,7 @@ def main() -> None:
         grouped_keys = sync_from_active()
         update_readme(README_PATH, grouped_keys, deleted_keys, warn_keys, lang="en")
         update_readme(README_CN_PATH, grouped_keys, deleted_keys, warn_keys, lang="cn")
+        update_docs_index()
         git_commit_and_push(sum(len(rows) for rows in grouped_keys.values()), len(deleted_keys))
         log_usage_stats()
         return
@@ -1200,6 +1548,7 @@ def main() -> None:
         grouped_keys = sync_from_active()
         update_readme(README_PATH, grouped_keys, deleted_keys, warn_keys, lang="en")
         update_readme(README_CN_PATH, grouped_keys, deleted_keys, warn_keys, lang="cn")
+        update_docs_index()
         git_commit_and_push(sum(len(rows) for rows in grouped_keys.values()), len(deleted_keys))
         log_usage_stats()
         return
@@ -1216,6 +1565,7 @@ def main() -> None:
 
     update_readme(README_PATH, grouped_keys, deleted_keys, warn_keys, lang="en")
     update_readme(README_CN_PATH, grouped_keys, deleted_keys, warn_keys, lang="cn")
+    update_docs_index()
     git_commit_and_push(sum(len(rows) for rows in grouped_keys.values()), len(deleted_keys))
     log_usage_stats()
 
