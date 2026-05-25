@@ -55,7 +55,7 @@ For production-grade LLM keys, contact **alistaitscale@gmail.com**.
 
 ## 📋 Available Keys
 
-> ⏰ Last updated: 2026-05-26 00:07 (UTC+8)
+> ⏰ Last updated: 2026-05-26 00:22 (UTC+8)
 >
 > All keys are API tokens compatible with **OpenAI SDK** — use them with any tool that supports custom OpenAI endpoints.
 > New keys are published multiple times per day by the server cron. Expired keys are cleaned throughout the day. Each key has a budget ($20-$100) and expires in 24-48 hours.
@@ -69,7 +69,7 @@ For production-grade LLM keys, contact **alistaitscale@gmail.com**.
 GPT-5.5, Claude Opus 4.7, Gemini, DeepSeek, smart-chat, Kimi, image, audio, and embeddings.
 The publisher only shows real keys. If a target model has no KM recommendation or quota, it tries a quota-backed KM-recommended model in the same capability; otherwise that shelf stays hidden.
 
-### GPT-5.5 `05-26 00:07`
+### GPT-5.5 `05-26 00:22`
 
 | Key | Model | Status | Budget | Rate Limit | Expires | Description |
 |-----|-------|--------|--------|------------|---------|-------------|
@@ -78,7 +78,7 @@ The publisher only shows real keys. If a target model has no KM recommendation o
 
 ---
 
-### Claude Opus 4.7 `05-26 00:07`
+### Claude Opus 4.7 `05-26 00:22`
 
 | Key | Model | Status | Budget | Rate Limit | Expires | Description |
 |-----|-------|--------|--------|------------|---------|-------------|
@@ -91,7 +91,7 @@ The publisher only shows real keys. If a target model has no KM recommendation o
 
 ---
 
-### Gemini `05-26 00:07`
+### Gemini `05-26 00:22`
 
 | Key | Model | Status | Budget | Rate Limit | Expires | Description |
 |-----|-------|--------|--------|------------|---------|-------------|
@@ -104,16 +104,16 @@ The publisher only shows real keys. If a target model has no KM recommendation o
 
 ---
 
-### DeepSeek `05-26 00:07`
+### DeepSeek `05-26 00:22`
 
 | Key | Model | Status | Budget | Rate Limit | Expires | Description |
 |-----|-------|--------|--------|------------|---------|-------------|
-| `sk-QvkH41cTEdUjrrxq1Q56ej04QRneTAXrRCjJg1eUazqvqQaK` | deepseek-chat | 🆕 New | $10 | 20 RPM | 2026-05-27 | Everyday chat, coding, translation, writing |
-| `sk-ov4adq5c5CA8goOCZ8jv3a90FkazlRElkmm9icDfWWVZPEXB` | deepseek-chat | 🆕 New | $15 | 20 RPM | 2026-05-27 | Everyday chat, coding, translation, writing |
+| `sk-03WJenss8PTBCRv7rCFZriGePAFUSRK9TYMK2eEwIs1rwTu6` | deepseek-chat | 🆕 New | $17 | 20 RPM | 2026-05-27 | Everyday chat, coding, translation, writing |
+| `sk-KxcekyT49AapiXRy5VH5iYUs5z9HID6iZ06Jfyq3gzz9wYJV` | deepseek-chat | 🆕 New | $17 | 20 RPM | 2026-05-27 | Everyday chat, coding, translation, writing |
 
 ---
 
-### Kimi `05-26 00:07`
+### Kimi `05-26 00:22`
 
 | Key | Model | Status | Budget | Rate Limit | Expires | Description |
 |-----|-------|--------|--------|------------|---------|-------------|
@@ -126,7 +126,7 @@ The publisher only shows real keys. If a target model has no KM recommendation o
 
 ---
 
-### Image / Audio / Embedding `05-26 00:07`
+### Image / Audio / Embedding `05-26 00:22`
 
 | Key | Model | Status | Budget | Rate Limit | Expires | Description |
 |-----|-------|--------|--------|------------|---------|-------------|
@@ -323,6 +323,7 @@ If this repo helped you, you may also like:
 <summary><b>Show changelog history</b></summary>
 
 ### 2026-05-26
+- 🆕 Added 2 keys (deepseek-chat), cleaned 2 expired
 - 🆕 Added 2 keys (deepseek-chat), cleaned 1 expired
 
 ### 2026-05-25
