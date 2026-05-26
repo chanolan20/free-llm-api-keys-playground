@@ -17,7 +17,7 @@ Copia una clave de la tabla, pégala en tu app y empieza a construir
 
 [![Stars](https://img.shields.io/github/stars/alistaitsacle/free-llm-api-keys?style=for-the-badge&logo=github)](https://github.com/alistaitsacle/free-llm-api-keys/stargazers)
 [![Last Commit](https://img.shields.io/github/last-commit/alistaitsacle/free-llm-api-keys?style=for-the-badge)](https://github.com/alistaitsacle/free-llm-api-keys/commits)
-[![Keys](https://img.shields.io/badge/Claves_Disponibles-16-brightgreen?style=for-the-badge)]()
+[![Keys](https://img.shields.io/badge/Claves_Disponibles-17-brightgreen?style=for-the-badge)]()
 [![Models](https://img.shields.io/badge/Modelos-90+-blue?style=for-the-badge)]()
 
 **⭐ Star este repo = más claves gratis para todos**
@@ -40,11 +40,11 @@ Uso APIs de LLM intensivamente en mi trabajo. Tengo capacidad sobrante que de ot
 
 ## 📋 Claves Disponibles
 
-> ⏰ Última actualización: 2026-05-26 18:07 (UTC+8)
+> ⏰ Última actualización: 2026-05-26 18:22 (UTC+8)
 
 ### Modelos destacados
 
-### Gemini `05-26 18:07`
+### Gemini `05-26 18:22`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
@@ -55,13 +55,14 @@ Uso APIs de LLM intensivamente en mi trabajo. Tengo capacidad sobrante que de ot
 | `sk-XgjyFvFKwlN3owoZkPiGpCO2Mdw9yHOYgah7CaLtIwONjCrF` | gemini-2.5-flash | 🆕 Nueva | $20 | 20 RPM | 2026-05-27 | Fast Gemini option for long-context general chat |
 | `sk-jCUWe0iXNGBHHxu4iYGTXe3lbOU30Ypf4uckmijtK6Bexnx0` | gemini-2.5-flash | 🆕 Nueva | $20 | 20 RPM | 2026-05-27 | Fast Gemini option for long-context general chat |
 
-### DeepSeek `05-26 18:07`
+### DeepSeek `05-26 18:22`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
-| `sk-DpwzSAfPlKX8F1tTJxUHlzH5SvwvBEI1ClqwvnLpWqcdQbk1` | deepseek-chat | 🆕 Nueva | $11 | 20 RPM | 2026-05-28 | Everyday chat, coding, translation, writing |
+| `sk-lZbPhCyrBBu0D4tp4QbTBguWM1xH9lkf1aTgCNF0ZdYjNjoU` | deepseek-chat | 🆕 Nueva | $17 | 20 RPM | 2026-05-28 | Everyday chat, coding, translation, writing |
+| `sk-Rpfj6NF8m6hd9AOmXHl9Dk9RA2Hy4d9ElPGKSkeaw7OG4oUG` | deepseek-chat | 🆕 Nueva | $13 | 20 RPM | 2026-05-28 | Everyday chat, coding, translation, writing |
 
-### Kimi `05-26 18:07`
+### Kimi `05-26 18:22`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
@@ -72,7 +73,7 @@ Uso APIs de LLM intensivamente en mi trabajo. Tengo capacidad sobrante que de ot
 | `sk-8tP25tC4Z0SXw53E9tIWuR21W69VDqlMb0g0nGq2RIURjeSI` | kimi-k2.5 | 🆕 Nueva | $20 | 10 RPM | 2026-05-27 | Kimi long-context general model |
 | `sk-agA3ZWsT50zauu7Yut1siURisRijrSLeJjw8G5Z7XRQqx8wR` | kimi-k2.5 | 🆕 Nueva | $20 | 10 RPM | 2026-05-27 | Kimi long-context general model |
 
-### Image / Audio / Embedding `05-26 18:07`
+### Image / Audio / Embedding `05-26 18:22`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
