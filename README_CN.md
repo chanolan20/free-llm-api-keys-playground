@@ -17,7 +17,7 @@
 
 [![Stars](https://img.shields.io/github/stars/alistaitsacle/free-llm-api-keys?style=for-the-badge&logo=github)](https://github.com/alistaitsacle/free-llm-api-keys/stargazers)
 [![Last Commit](https://img.shields.io/github/last-commit/alistaitsacle/free-llm-api-keys?style=for-the-badge)](https://github.com/alistaitsacle/free-llm-api-keys/commits)
-[![Keys](https://img.shields.io/badge/可用_Key-16-brightgreen?style=for-the-badge)]()
+[![Keys](https://img.shields.io/badge/可用_Key-34-brightgreen?style=for-the-badge)]()
 [![Models](https://img.shields.io/badge/支持模型-90+-blue?style=for-the-badge)]()
 [![Follow on X](https://img.shields.io/badge/在_X_关注-获取新key-000000?style=for-the-badge&logo=x)](https://x.com/getkeyway)
 
@@ -57,7 +57,7 @@ AI 正在改变一切，但大多数 API 都锁在信用卡和付费墙后面。
 
 ## 📋 可用 Key 列表
 
-> ⏰ 最后更新： 2026-05-30 08:22 (UTC+8)
+> ⏰ 最后更新： 2026-05-30 08:30 (UTC+8)
 >
 > 所有 Key 均为本平台签发的 API token，兼容 **OpenAI SDK**，可搭配任何支持自定义 OpenAI 端点的工具使用。
 > 新 Key 由服务器定时任务每天多次发布，失效 Key 全天自动清理。每个 Key 预算 $20-$100，有效期 24-48 小时。
@@ -71,7 +71,7 @@ AI 正在改变一切，但大多数 API 都锁在信用卡和付费墙后面。
 覆盖 GPT-5.5、Claude Opus 4.7、Gemini、DeepSeek、smart-chat、Kimi、图像、语音和向量模型。
 发布器只展示真实 Key；目标模型没有 KM 推荐或额度不足时，会尝试 KM 推荐且有额度的同类模型，仍不可用则留空不展示。
 
-### GPT-5.5 `05-30 08:22`
+### GPT-5.5 `05-30 08:30`
 
 | Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
 |-----|------|------|------|---------|---------|------|
@@ -82,7 +82,20 @@ AI 正在改变一切，但大多数 API 都锁在信用卡和付费墙后面。
 
 ---
 
-### Gemini `05-30 08:22`
+### Claude Opus 4.7 `05-30 08:30`
+
+| Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
+|-----|------|------|------|---------|---------|------|
+| `sk-1AJJ3PqVjs8UR5GwKiC7GXwpTSpUDP5c0dUwh5wOXJ9mblkc` | claude-opus-4-7 | 🆕 新增 | $20 | 5 RPM | 2026-06-01 | Claude Opus 旗舰模型 |
+| `sk-fmHaW0bX8ZjXG1tJq3ILoOIAPf6qMbSI1dkdzW4e1mraCo7Y` | claude-opus-4-7 | 🆕 新增 | $20 | 5 RPM | 2026-06-01 | Claude Opus 旗舰模型 |
+| `sk-2XckjRM0anm2mf6rb8fOMzgGw73XY6cMQ6ULypdXgovPDZEA` | claude-opus-4-7 | 🆕 新增 | $20 | 5 RPM | 2026-06-01 | Claude Opus 旗舰模型 |
+| `sk-IdBm7h5phVY2GruBOI4kxqIXGwDw1e7Y1MaqNeTB9u9qEPEs` | claude-opus-4-7 | 🆕 新增 | $20 | 5 RPM | 2026-06-01 | Claude Opus 旗舰模型 |
+| `sk-mh1oaMzRGZwgGAC66uXU6t1h3dJh18R4PSWWYRYsdv5eBdoG` | claude-opus-4-7 | 🆕 新增 | $20 | 5 RPM | 2026-06-01 | Claude Opus 旗舰模型 |
+| `sk-8dSm7oAmvbu5tZB8XgTahHg35Namh5WybW4WB9i5Q6l02YR3` | claude-opus-4-7 | 🆕 新增 | $20 | 5 RPM | 2026-06-01 | Claude Opus 旗舰模型 |
+
+---
+
+### Gemini `05-30 08:30`
 
 | Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
 |-----|------|------|------|---------|---------|------|
@@ -95,7 +108,7 @@ AI 正在改变一切，但大多数 API 都锁在信用卡和付费墙后面。
 
 ---
 
-### DeepSeek `05-30 08:22`
+### DeepSeek `05-30 08:30`
 
 | Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
 |-----|------|------|------|---------|---------|------|
@@ -105,7 +118,33 @@ AI 正在改变一切，但大多数 API 都锁在信用卡和付费墙后面。
 
 ---
 
-### 图像 / 语音 / 向量化 `05-30 08:22`
+### 多模型聚合（GPT-5.5 / Claude / DeepSeek / Gemini 自动轮询） `05-30 08:30`
+
+| Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
+|-----|------|------|------|---------|---------|------|
+| `sk-gyIAmz1hJgG1VFZXPPPM07pjJ3WcFcCTwqBim5L3K0VaD81L` | smart-chat | 🆕 新增 | $20 | 10 RPM | 2026-06-01 | 自动路由到当前健康的低成本聊天模型 |
+| `sk-SpTU60P77IzXiGZXOvxfHYYQkszjbVaMVYUtZdePx0wAInmX` | smart-chat | 🆕 新增 | $20 | 10 RPM | 2026-06-01 | 自动路由到当前健康的低成本聊天模型 |
+| `sk-6I0ki3gCG07hziBGa5ufHVhVYvcsDWbgyMS6dgnUfnY4kJk0` | smart-chat | 🆕 新增 | $20 | 10 RPM | 2026-06-01 | 自动路由到当前健康的低成本聊天模型 |
+| `sk-lCzDeS2Cw24W3WYEbuevF2eBiNHVDbMyCsKTZFl54gmLkniT` | smart-chat | 🆕 新增 | $20 | 10 RPM | 2026-06-01 | 自动路由到当前健康的低成本聊天模型 |
+| `sk-TR8sb0caETh12FOb8GYHirDDxkh7ebfMjOJ5scj27YOJx37L` | smart-chat | 🆕 新增 | $20 | 10 RPM | 2026-06-01 | 自动路由到当前健康的低成本聊天模型 |
+| `sk-R7pxSYUon0cUA0cZYmS4yYM09JU12QX8s3EUHo7y5DzSFfGl` | smart-chat | 🆕 新增 | $20 | 10 RPM | 2026-06-01 | 自动路由到当前健康的低成本聊天模型 |
+
+---
+
+### Kimi `05-30 08:30`
+
+| Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
+|-----|------|------|------|---------|---------|------|
+| `sk-AUlnabnzEtzah0fX4TkziiKVIq1083knP8N5qWAZAY0DEWId` | kimi-k2.5 | 🆕 新增 | $20 | 10 RPM | 2026-06-01 | Kimi 长上下文通用模型 |
+| `sk-2B0hZDFhYARUFwhIBLWGTVB8ov2SNq0M4yYTEw747F4aj5L0` | kimi-k2.5 | 🆕 新增 | $20 | 10 RPM | 2026-06-01 | Kimi 长上下文通用模型 |
+| `sk-0HguvN8BuPehmjKNNHjI7on8rRW01QBZxhzYF2CJWbVBmYXK` | kimi-k2.5 | 🆕 新增 | $20 | 10 RPM | 2026-06-01 | Kimi 长上下文通用模型 |
+| `sk-POBB7T3CiI4VmY2w2UkxuivxSHp5D9hEYjEkQxGLE5ymcKPz` | kimi-k2.5 | 🆕 新增 | $20 | 10 RPM | 2026-06-01 | Kimi 长上下文通用模型 |
+| `sk-ifQ7Khmu9lmUHaQ3ZtB6jY9kWq2X4YVzFSp2hLiISPzmBiFp` | kimi-k2.5 | 🆕 新增 | $20 | 10 RPM | 2026-06-01 | Kimi 长上下文通用模型 |
+| `sk-zs51IkfesG6wOw8ric4KYB2YgcAnUFmTbOgffPKdsCXxW9Qe` | kimi-k2.5 | 🆕 新增 | $20 | 10 RPM | 2026-06-01 | Kimi 长上下文通用模型 |
+
+---
+
+### 图像 / 语音 / 向量化 `05-30 08:30`
 
 | Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
 |-----|------|------|------|---------|---------|------|
