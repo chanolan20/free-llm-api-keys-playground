@@ -17,7 +17,7 @@ Copia una clave de la tabla, pégala en tu app y empieza a construir
 
 [![Stars](https://img.shields.io/github/stars/alistaitsacle/free-llm-api-keys?style=for-the-badge&logo=github)](https://github.com/alistaitsacle/free-llm-api-keys/stargazers)
 [![Last Commit](https://img.shields.io/github/last-commit/alistaitsacle/free-llm-api-keys?style=for-the-badge)](https://github.com/alistaitsacle/free-llm-api-keys/commits)
-[![Keys](https://img.shields.io/badge/Claves_Disponibles-21-brightgreen?style=for-the-badge)]()
+[![Keys](https://img.shields.io/badge/Claves_Disponibles-20-brightgreen?style=for-the-badge)]()
 [![Models](https://img.shields.io/badge/Modelos-90+-blue?style=for-the-badge)]()
 [![Follow on X](https://img.shields.io/badge/Sigue_en_X-nuevas_claves-000000?style=for-the-badge&logo=x)](https://x.com/getkeyway)
 
@@ -43,18 +43,18 @@ Uso APIs de LLM intensivamente en mi trabajo. Tengo capacidad sobrante que de ot
 
 ## 📋 Claves Disponibles
 
-> ⏰ Última actualización: 2026-05-31 21:07 (UTC+8)
+> ⏰ Última actualización: 2026-05-31 21:22 (UTC+8)
 
 ### Modelos destacados
 
-### GPT-5.5 `05-31 21:07`
+### GPT-5.5 `05-31 21:22`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
 | `sk-1EL1QJ3YyLpt7wEi0lzKELZdtxnbx9eQr34GKicbtTBxSDld` | gemini-2.5-pro | 🆕 Nueva | $20 | 5 RPM | 2026-06-01 | KM recommended alternative for Premium GPT flagship |
 | `sk-KNKalSmgCb3l563aL07xrJU0fM1ezBT47ZEGFnNUUBPo9cfy` | gemini-2.5-pro | 🆕 Nueva | $20 | 5 RPM | 2026-06-01 | KM recommended alternative for Premium GPT flagship |
 
-### Claude Opus 4.7 `05-31 21:07`
+### Claude Opus 4.7 `05-31 21:22`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
@@ -65,7 +65,7 @@ Uso APIs de LLM intensivamente en mi trabajo. Tengo capacidad sobrante que de ot
 | `sk-pSNRhFDVYrhQvrbSO5L9TSZ0nBbI77eK0kEuboftxSEScDVE` | gemini-2.5-pro | 🆕 Nueva | $20 | 5 RPM | 2026-06-01 | KM recommended alternative for Claude Opus flagship |
 | `sk-GPw0ScwJUW6QlD9fsAQaF81xmnpMG4W5R7T8eZsGYucBADD0` | gemini-2.5-pro | 🆕 Nueva | $20 | 5 RPM | 2026-06-01 | KM recommended alternative for Claude Opus flagship |
 
-### DeepSeek `05-31 21:07`
+### DeepSeek `05-31 21:22`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
@@ -73,16 +73,15 @@ Uso APIs de LLM intensivamente en mi trabajo. Tengo capacidad sobrante que de ot
 | `sk-9PMCkE8F7XCwQIjXoB18TA9orOREcN1KLe92avrm5svok58q` | gemini-2.5-pro | 🆕 Nueva | $20 | 20 RPM | 2026-06-02 | KM recommended alternative for Everyday chat, coding, translation, writing |
 | `sk-ZXOs3g7MeCmnlwFlHQWYfGjtI7iIQZp7OklP97Q7zh5ttGo0` | gemini-2.5-pro | 🆕 Nueva | $20 | 20 RPM | 2026-06-02 | KM recommended alternative for Everyday chat, coding, translation, writing |
 
-### Multi-Modelo (GPT-5.5 / Claude / DeepSeek / Gemini ruteo automático) `05-31 21:07`
+### Multi-Modelo (GPT-5.5 / Claude / DeepSeek / Gemini ruteo automático) `05-31 21:22`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
-| `sk-PYOBAXOQJtshhilBQ2eDiGbzRFQXMVIjfXKQkFL2PEF5OuCO` | smart-chat | 🆕 Nueva | $20 | 10 RPM | 2026-06-02 | Auto-routes across currently healthy low-cost chat backends |
 | `sk-y2z7Deja1VVN90kFnYwj67hdD0tM0aKPeVyS3zsLz21EArsP` | smart-chat | 🆕 Nueva | $20 | 10 RPM | 2026-06-02 | Auto-routes across currently healthy low-cost chat backends |
 | `sk-yVswV89RHwVdEgcdnfB8TRgi5t2oiHZhi0dXJ78RHgzGZRp0` | smart-chat | 🆕 Nueva | $20 | 10 RPM | 2026-06-02 | Auto-routes across currently healthy low-cost chat backends |
 | `sk-ImEPU2vTNqPj6ph3deAuZKrT6CYxMeZQwHnDJcbd6Wti2IST` | smart-chat | 🆕 Nueva | $20 | 10 RPM | 2026-06-02 | Auto-routes across currently healthy low-cost chat backends |
 
-### Kimi `05-31 21:07`
+### Kimi `05-31 21:22`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
