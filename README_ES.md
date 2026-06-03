@@ -17,7 +17,7 @@ Copia una clave de la tabla, pégala en tu app y empieza a construir
 
 [![Stars](https://img.shields.io/github/stars/alistaitsacle/free-llm-api-keys?style=for-the-badge&logo=github)](https://github.com/alistaitsacle/free-llm-api-keys/stargazers)
 [![Last Commit](https://img.shields.io/github/last-commit/alistaitsacle/free-llm-api-keys?style=for-the-badge)](https://github.com/alistaitsacle/free-llm-api-keys/commits)
-[![Keys](https://img.shields.io/badge/Claves_Disponibles-29-brightgreen?style=for-the-badge)]()
+[![Keys](https://img.shields.io/badge/Claves_Disponibles-28-brightgreen?style=for-the-badge)]()
 [![Models](https://img.shields.io/badge/Modelos-90+-blue?style=for-the-badge)]()
 [![Follow on X](https://img.shields.io/badge/Sigue_en_X-nuevas_claves-000000?style=for-the-badge&logo=x)](https://x.com/getkeyway)
 
@@ -43,11 +43,11 @@ Uso APIs de LLM intensivamente en mi trabajo. Tengo capacidad sobrante que de ot
 
 ## 📋 Claves Disponibles
 
-> ⏰ Última actualización: 2026-06-04 02:37 (UTC+8)
+> ⏰ Última actualización: 2026-06-04 02:52 (UTC+8)
 
 ### Modelos destacados
 
-### GPT-5.5 `06-04 02:37`
+### GPT-5.5 `06-04 02:52`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
@@ -56,13 +56,17 @@ Uso APIs de LLM intensivamente en mi trabajo. Tengo capacidad sobrante que de ot
 | `sk-Fxfm1b7xaWqa48zgCaL7ajNmJGPKvKSDRygbDGeurTMzHmaY` | gemini-2.5-pro | 🆕 Nueva | $20 | 5 RPM | 2026-06-05 | KM recommended alternative for Premium GPT flagship |
 | `sk-RNasOfzhZbf0vhW0pKLjQ7BEShgq1CNvIPUPoyv2RNAd1w4W` | gemini-2.5-pro | 🆕 Nueva | $20 | 5 RPM | 2026-06-05 | KM recommended alternative for Premium GPT flagship |
 
-### Claude Opus 4.7 `06-04 02:37`
+### Claude Opus 4.7 `06-04 02:52`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
-| `sk-Q6HumpeDtSycilzddPTnAIGReF4bJ8YDpgMFuLF0CIINBTzq` | claude-opus-4-7 | 🆕 Nueva | $14 | 5 RPM | 2026-06-05 | Claude Opus flagship |
+| `sk-ImEz8mf3Yfiren0TDeootkhAtVSkcszV5P1POcqWzn0GsMs9` | claude-opus-4-7 | 🆕 Nueva | $18 | 5 RPM | 2026-06-05 | Claude Opus flagship |
+| `sk-c1dtBiucGilp2ckXG4NaLbWJ6lWKhKCyzMJ7PhxaDgOSVvVx` | claude-opus-4-7 | 🆕 Nueva | $17 | 5 RPM | 2026-06-05 | Claude Opus flagship |
+| `sk-xpbVL0y3HthcjovSnaTUIUaSiaJA1aaLMzmnPBMGF0IThPhB` | claude-opus-4-7 | 🆕 Nueva | $18 | 5 RPM | 2026-06-05 | Claude Opus flagship |
+| `sk-e6cKorvV1oMBDLrkWmEa4jfIY34bCbKQ2Z5QcfGoaolXcIJy` | claude-opus-4-7 | 🆕 Nueva | $18 | 5 RPM | 2026-06-05 | Claude Opus flagship |
+| `sk-sjS921jvK5jtv8c0wye7kRxbuHMnNn2tnAXWFcTbwwBdN63E` | claude-opus-4-7 | 🆕 Nueva | $19 | 5 RPM | 2026-06-05 | Claude Opus flagship |
 
-### Gemini `06-04 02:37`
+### Gemini `06-04 02:52`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
@@ -73,7 +77,7 @@ Uso APIs de LLM intensivamente en mi trabajo. Tengo capacidad sobrante que de ot
 | `sk-UapGlJuQyvDboowuY890a3Qyqd5j5fMrKH2vAgt2v6a9u3Ct` | gemini-2.5-flash | 🆕 Nueva | $20 | 20 RPM | 2026-06-04 | Fast Gemini option for long-context general chat |
 | `sk-ncGnn0fCZ3BEmvow31TctGEhm7GttX7vN0dAksCsb2M1COh3` | gemini-2.5-flash | 🆕 Nueva | $20 | 20 RPM | 2026-06-04 | Fast Gemini option for long-context general chat |
 
-### DeepSeek `06-04 02:37`
+### DeepSeek `06-04 02:52`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
@@ -81,18 +85,13 @@ Uso APIs de LLM intensivamente en mi trabajo. Tengo capacidad sobrante que de ot
 | `sk-ADscW2NDvYKkuwHvnsEw6IiDtcq7YzKdcOXmNsGwjmGBFyU2` | gemini-2.5-pro | 🆕 Nueva | $20 | 20 RPM | 2026-06-04 | KM recommended alternative for Everyday chat, coding, translation, writing |
 | `sk-ACB81N7ARULaC4fCTsxwM9j8U2IjNLKCdNe7VlRYLCHRTlK9` | gemini-2.5-pro | 🆕 Nueva | $20 | 20 RPM | 2026-06-04 | KM recommended alternative for Everyday chat, coding, translation, writing |
 
-### Multi-Modelo (GPT-5.5 / Claude / DeepSeek / Gemini ruteo automático) `06-04 02:37`
+### Multi-Modelo (GPT-5.5 / Claude / DeepSeek / Gemini ruteo automático) `06-04 02:52`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
-| `sk-EXosGRSlTRrkoLwaarnmYrZmmpn3VZcwH6uJnVYipLBgIXxO` | smart-chat | 🆕 Nueva | $20 | 10 RPM | 2026-06-05 | Auto-routes across currently healthy low-cost chat backends |
 | `sk-OA2UrKas8WGmn3TYow1WHrMh026YmOu3Mn0L9wFSTN3Gka2L` | smart-chat | 🆕 Nueva | $20 | 10 RPM | 2026-06-05 | Auto-routes across currently healthy low-cost chat backends |
-| `sk-v1EMff3GfZqMjqz21x9J8VgDox5AosKFc5nNGxJMphpEkAjg` | smart-chat | 🆕 Nueva | $20 | 10 RPM | 2026-06-05 | Auto-routes across currently healthy low-cost chat backends |
-| `sk-DQy8dE5e9LW4XaLBdkEcOqsjriOWKeAbBl87iKrTnexWVMHM` | smart-chat | 🆕 Nueva | $20 | 10 RPM | 2026-06-05 | Auto-routes across currently healthy low-cost chat backends |
-| `sk-TMfFDtJRd9ceE0b5NqPPVWwCDOfwLfbS3gy6vJtUZPBPwEkw` | smart-chat | 🆕 Nueva | $20 | 10 RPM | 2026-06-05 | Auto-routes across currently healthy low-cost chat backends |
-| `sk-Jp6CaTHh7JpXz50u6cDvU8top9h5q50hHDRn1rFTT7KjhF0G` | smart-chat | 🆕 Nueva | $20 | 10 RPM | 2026-06-05 | Auto-routes across currently healthy low-cost chat backends |
 
-### Kimi `06-04 02:37`
+### Kimi `06-04 02:52`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
@@ -103,7 +102,7 @@ Uso APIs de LLM intensivamente en mi trabajo. Tengo capacidad sobrante que de ot
 | `sk-nRuVQ4IYNcdDo4rV1rVKx8nIiormIYyZ5WbHLJKU7b8YiYA1` | kimi-k2.5 | 🆕 Nueva | $20 | 10 RPM | 2026-06-05 | Kimi long-context general model |
 | `sk-LHs0PgmZvyNIDapji3rQciqS7Xq61QoelxbB9Syv0NL6Ejdi` | kimi-k2.5 | 🆕 Nueva | $20 | 10 RPM | 2026-06-05 | Kimi long-context general model |
 
-### Image / Audio / Embedding `06-04 02:37`
+### Image / Audio / Embedding `06-04 02:52`
 
 | Key | Modelo | Estado | Presupuesto | Tasa | Expira | Descripción |
 |-----|--------|--------|-------------|------|--------|-------------|
