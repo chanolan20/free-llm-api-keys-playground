@@ -70,7 +70,7 @@ AI 正在改变一切，但大多数 API 都锁在信用卡和付费墙后面。
 
 ## 📋 可用 Key 列表
 
-> ⏰ 最后更新： 2026-06-09 17:52 (UTC+8)
+> ⏰ 最后更新： 2026-06-09 18:07 (UTC+8)
 >
 > 所有 Key 均为本平台签发的 API token，兼容 **OpenAI SDK**，可搭配任何支持自定义 OpenAI 端点的工具使用。
 > 新 Key 由服务器定时任务每天多次发布，失效 Key 全天自动清理。每个 Key 预算 $20-$100，有效期 24-48 小时。
@@ -84,15 +84,19 @@ AI 正在改变一切，但大多数 API 都锁在信用卡和付费墙后面。
 覆盖 GPT-5.5、Claude Opus 4.7、Gemini、DeepSeek、smart-chat、Kimi、图像、语音和向量模型。
 发布器只展示真实 Key；主货架只展示对应模型的直接 Key，额外有余额模型会按模型名单独列出。
 
-### GPT-5.5 `06-09 17:52`
+### GPT-5.5 `06-09 18:07`
 
 | Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
 |-----|------|------|------|---------|---------|------|
-| `sk-2bLqInle779CZ1WzxnG3C85tdGIwBFliEfJIYeauB8TgIIk1` | gpt-5.5 | 🆕 新增 | $19 | 5 RPM | 2026-06-11 | GPT 旗舰模型 |
+| `sk-UVw54m3qn3eg8GxJbQZzsm7Pe4Jam3N0rOEHI22BRLpqbIHw` | gpt-5.5 | 🆕 新增 | $12 | 5 RPM | 2026-06-11 | GPT 旗舰模型 |
+| `sk-aOaxuJMIbqFWIVzOvXvbhDJHRLsy0KIRuiQ1aMgIZmefJ6fL` | gpt-5.5 | 🆕 新增 | $18 | 5 RPM | 2026-06-11 | GPT 旗舰模型 |
+| `sk-Xqjo34qSDX7GfbO22qArUq8hcoLSpsbb3w7npbaiu8fLHOxr` | gpt-5.5 | 🆕 新增 | $13 | 5 RPM | 2026-06-11 | GPT 旗舰模型 |
+| `sk-JQvoXUr8SnI3hUh3Fdcr8lm2SLlrihBiwKZAeOk8zZqd6vQl` | gpt-5.5 | 🆕 新增 | $11 | 5 RPM | 2026-06-11 | GPT 旗舰模型 |
+| `sk-t5hVbEYmjucU1BxrqUDJyMI0cSkRsnNKM8nxxB0ZFz0bIUaR` | gpt-5.5 | 🆕 新增 | $14 | 5 RPM | 2026-06-11 | GPT 旗舰模型 |
 
 ---
 
-### Claude Opus 4.7 `06-09 17:52`
+### Claude Opus 4.7 `06-09 18:07`
 
 | Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
 |-----|------|------|------|---------|---------|------|
@@ -101,7 +105,7 @@ AI 正在改变一切，但大多数 API 都锁在信用卡和付费墙后面。
 
 ---
 
-### Gemini `06-09 17:52`
+### Gemini `06-09 18:07`
 
 | Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
 |-----|------|------|------|---------|---------|------|
@@ -114,32 +118,21 @@ AI 正在改变一切，但大多数 API 都锁在信用卡和付费墙后面。
 
 ---
 
-### Kimi `06-09 17:52`
+### Kimi `06-09 18:07`
 
 | Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
 |-----|------|------|------|---------|---------|------|
-| `sk-3XeTvRogTCmKAhWKh4mfhAg3QT93W4jRQLUz4sNkpKGR45Bt` | kimi-k2.5 | 🆕 新增 | $13 | 10 RPM | 2026-06-11 | Kimi 长上下文通用模型 |
-| `sk-Z20fGO8EFLUTHEEqg7hyqQR1k1VmHy7aCuK5F5Iw9jc2PDQh` | kimi-k2.5 | 🆕 新增 | $17 | 10 RPM | 2026-06-10 | Kimi 长上下文通用模型 |
-| `sk-C9JjlIEiBJ4J8xGhHHKyRbskd5jZYWCsgQtbxi7v3LNdWncO` | kimi-k2.5 | 🆕 新增 | $14 | 10 RPM | 2026-06-10 | Kimi 长上下文通用模型 |
-| `sk-ka3qG6Z8VuRdWlveq5d3F5myc8qkP5OYkPE0Lw0AWgYo0hzZ` | kimi-k2.5 | 🆕 新增 | $10 | 10 RPM | 2026-06-10 | Kimi 长上下文通用模型 |
+| `sk-c9ZyY5AImvFfzxJ4en1jXBZiQGbpCCzhlqN9oRTnteT14XVu` | kimi-k2.5 | 🆕 新增 | $19 | 10 RPM | 2026-06-11 | Kimi 长上下文通用模型 |
 
 ---
 
-### 图像 / 语音 / 向量化 `06-09 17:52`
+### 图像 / 语音 / 向量化 `06-09 18:07`
 
 | Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
 |-----|------|------|------|---------|---------|------|
 | `sk-LLSm7Q9rSrlUHg8MYYYZPwNZRowKCqFnJb9lFwEuEJ3qKZIL` | text-embedding-3-small | 🆕 新增 | $20 | 20 RPM | 2026-06-10 | 文本向量化 |
 | `sk-DTVP2vzvaQbfJ7ivR7YOYXgwpAoeBm70FB9Zz8TecRLFaFAG` | text-embedding-3-small | 🆕 新增 | $20 | 20 RPM | 2026-06-10 | 文本向量化 |
 | `sk-P0BQ3DFZObneEfX4ws3P5BSia6Br0Hjj9wDqXihvT59k60ec` | text-embedding-3-small | 🆕 新增 | $20 | 20 RPM | 2026-06-10 | 文本向量化 |
-
-### openrouter/owl-alpha `06-09 16:30`
-
-| Key | 模型 | 状态 | 预算 | 速率限制 | 过期时间 | 说明 |
-|-----|------|------|------|---------|---------|------|
-| `sk-l5X15885N3fxZx3PyyZhwux6PGw3FcWVTL0HImqJmx3fhcXc` | openrouter/owl-alpha | 🆕 新增 | $20 | 10 RPM | 2026-06-10 | 来自有余额渠道的额外可用模型 |
-
----
 
 ### nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free `06-09 14:31`
 
