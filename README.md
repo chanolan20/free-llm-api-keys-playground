@@ -337,7 +337,6 @@ print(f"Vector dimension: {len(response.data[0].embedding)}")
 - **Stability AI** — Stable Diffusion image gen. 25 free credits on signup.
 - **Fal.ai** — Flux image gen. $1-2 free credits on signup.
 - **Voyage AI** — High-quality embeddings. 50M free tokens on signup.
-- **OpenRouter** — ~28 free model routes. 20 RPM, 200 RPD default. $10 top-up raises to 1,000 RPD.
 - **Puter.js** — User-brings-their-own-key model. No backend API key needed.
 - **SambaNova** — Llama 3.1 405B free. High throughput inference.
 - **Hyperbolic** — Free inference credits on signup.
