@@ -328,19 +328,22 @@ print(f"Vector dimension: {len(response.data[0].embedding)}")
 | **Qwen** | qwen3.6-flash | Lightweight fast model |
 | **GLM / Zhipu** | GLM-5, GLM-4.7 | Chinese LLM leader |
 | **More** | Mercury, MiniMax, Seed | Continuously expanding |**Direct free-tier alternatives (sign up separately):**
-- **Groq** — llama-3.3-70b, mixtral, Qwen3 via LPU. 30 RPM free. Ultra-fast inference.
-- **Cerebras** — Llama 3.1 8B/70B. 1M tokens/day free. Very high throughput.
-- **GitHub Models** — 45+ models (GPT-4o Mini, Phi-4). Free prototyping, 60 RPM.
-- **HuggingFace Inference** — 100K monthly credits, routes to Fireworks/Together/Novita/DeepInfra.
-- **Cloudflare Workers AI** — 10K requests/day free across 30+ models.
-- **ElevenLabs** — High-quality TTS. 10K chars/month free.
+- **Groq** — llama-3.3-70b, mixtral, Qwen3 via LPU. 30 RPM, 250-14,400 RPD depending on model. 6K-12K TPM.
+- **Cerebras** — Llama 3.1 8B/70B. $5 free credit on signup. 5 RPM, 30K TPM. Fast inference.
+- **GitHub Models** — 45+ models (GPT-4o Mini, Phi-4). Free prototyping for GitHub users. 5,000 req/hr authenticated.
+- **HuggingFace Inference** — $0.10/month free credits, routes to Fireworks/Together/Novita/DeepInfra.
+- **Cloudflare Workers AI** — 30+ models. 10,000 Neurons/day free. Resets daily at 00:00 UTC.
+- **ElevenLabs** — High-quality TTS. 10K characters/month free.
 - **Stability AI** — Stable Diffusion image gen. 25 free credits on signup.
 - **Fal.ai** — Flux image gen. $1-2 free credits on signup.
 - **Voyage AI** — High-quality embeddings. 50M free tokens on signup.
+- **OpenRouter** — ~28 free model routes. 20 RPM, 200 RPD default. $10 top-up raises to 1,000 RPD.
 - **Puter.js** — User-brings-their-own-key model. No backend API key needed.
-- **SambaNova** — Llama 3.1 405B free. High throughput.
+- **SambaNova** — Llama 3.1 405B free. High throughput inference.
 - **Hyperbolic** — Free inference credits on signup.
 - **Scaleway** — EU-hosted models. Free tier available.
+
+For a full comparison with rate limits, free caps, and privacy notes for 30+ providers, see [`docs/provider-registry.md`](./docs/provider-registry.md).
 
 **Beyond chat:** Image generation (DALL-E 3), text-to-speech (TTS-1-HD), embeddings, reranking.
 

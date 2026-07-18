@@ -1187,3 +1187,78 @@ Extremely restrictive input/output token limits.
 - voxtral-small-24b-2507
 
 
+
+---
+
+## Additional Trial-Credit Providers
+
+The following providers offer trial credits (not permanent free tiers):
+
+### Fireworks AI
+- **Free tier:** Trial credits on signup
+- **Offers:** Mixtral, Llama, Qwen, DeepSeek hosted inference
+- **Website:** https://fireworks.ai
+
+### Baseten
+- **Free tier:** Trial credits on signup
+- **Offers:** Serverless GPU inference for open models
+- **Website:** https://baseten.co
+
+### Nebius AI
+- **Free tier:** Trial credits on signup
+- **Offers:** GPU cloud for AI training and inference
+- **Website:** https://nebius.com
+
+### Novita AI
+- **Free tier:** Trial credits on signup
+- **Offers:** Affordable GPU inference for open-source LLMs
+- **Website:** https://novita.ai
+
+### AI21 Labs
+- **Free tier:** Trial credits on signup
+- **Offers:** Jamba, Jurassic-2 models
+- **Website:** https://ai21.com
+
+### Upstage
+- **Free tier:** Trial credits on signup
+- **Offers:** Solar LLM, document AI
+- **Website:** https://upstage.ai
+
+### NLP Cloud
+- **Free tier:** Trial credits on signup
+- **Offers:** Hosted open-source NLP models (GPT-J, GPT-NeoX, etc.)
+- **Website:** https://nlpcloud.com
+
+### Alibaba Cloud Model Studio
+- **Free tier:** Trial credits on signup
+- **Offers:** Qwen family models via international API
+- **Website:** https://alibabacloud.com
+
+### Modal
+- **Free tier:** Trial credits on signup
+- **Offers:** Serverless GPU compute for AI workloads
+- **Website:** https://modal.com
+
+### Inference.net
+- **Free tier:** Trial credits on signup
+- **Offers:** Distributed GPU inference for open models
+- **Website:** https://inference.net
+
+### Hyperbolic
+- **Free tier:** Free inference credits on signup
+- **Offers:** Open-source model inference, GPU rental
+- **Website:** https://hyperbolic.xyz
+
+### SambaNova Cloud
+- **Free tier:** Free tier available
+- **Offers:** Llama 3.1 405B, high-throughput inference
+- **Website:** https://sambanova.ai
+
+### Scaleway Generative APIs
+- **Free tier:** Free tier available (EU-hosted)
+- **Offers:** EU-hosted LLM inference, data sovereignty
+- **Website:** https://scaleway.com
+
+---
+*Generated from free-llm-api-resources project (external drive)*
+
