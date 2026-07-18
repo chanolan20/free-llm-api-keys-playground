@@ -2539,3 +2539,26 @@ If this repo helped you, you may also like:
 [MIT License](./LICENSE)
 
 
+## 📚 Provider Research Findings
+
+### Research Methodology (July 2026)
+Verified free-tier limits by consulting official provider documentation:
+- Groq console docs (github.com/groq)
+- Cerebras inference docs (inference-docs.cerebras.ai)
+- GitHub Models (docs.github.com)
+- HuggingFace pricing (huggingface.co/docs/inference-providers)
+- Cloudflare Workers AI pricing (developers.cloudflare.com)
+- ElevenLabs pricing (elevenlabs.io/pricing)
+- Mistral usage docs (docs.mistral.ai)
+
+### Key Corrections Found
+| Provider | Old Assumption | Verified Reality |
+|---|---|---|
+| Cerebras | 1M tokens/day free | $5 credit on signup, 5 RPM, 30K TPM |
+| GitHub Models | 60 RPM generic | 5,000 req/hr authenticated |
+| Cloudflare | 10K requests/day | 10,000 Neurons/day (different unit) |
+
+### Full Documentation
+- [Provider Registry](./docs/provider-registry.md) — 1,264-line master registry
+- [Cheat Sheet (HTML)](https://chanolan20.github.io/free-llm-api-keys-playground/cheat-sheet.html) — Quick reference
+- [Cheat Sheet (Markdown)](./docs/cheat-sheet.md) — Same data in .md format
