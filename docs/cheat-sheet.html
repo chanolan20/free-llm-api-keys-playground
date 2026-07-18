@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Cheat Sheet — Free LLM APIs</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; padding: 24px; line-height: 1.5; }
+    h1 { font-size: 1.5rem; color: #f8fafc; margin-bottom: 4px; }
+    .subtitle { color: #94a3b8; font-size: 0.88rem; margin-bottom: 24px; }
+    h2 { font-size: 1.1rem; color: #60a5fa; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #1e293b; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-bottom: 16px; }
+    th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #1e293b; }
+    th { color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.5px; }
+    tr:hover td { background: #1e293b; }
+    code { background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 0.78rem; color: #a5b4fc; }
+    .footer { margin-top: 32px; color: #64748b; font-size: 0.78rem; text-align: center; }
+    .footer a { color: #60a5fa; }
+    @media (max-width: 640px) { th, td { padding: 6px 8px; font-size: 0.72rem; } }
+  </style>
+</head>
+<body>
+  <h1>Provider Cheat Sheet</h1>
+  <p class="subtitle">Quick-reference for free LLM API providers</p>
+
+  <h2>Free Tiers (No Credit Card Required)</h2>
+  <table>
+    <thead><tr><th>Provider</th><th>Base URL</th><th>Env Key</th><th>Free Limit</th><th>RPM</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Groq</td><td><code>api.groq.com/openai/v1</code></td><td><code>GROQ_API_KEY</code></td><td>6K-12K TPM</td><td>30</td><td>Ultra-fast LPU</td></tr>
+      <tr><td>Ollama</td><td><code>localhost:11434/v1</code></td><td><code>OLLAMA_API_KEY</code></td><td>Unlimited</td><td>—</td><td>100% local</td></tr>
+      <tr><td>OpenRouter</td><td><code>openrouter.ai/api/v1</code></td><td><code>OPENROUTER_API_KEY</code></td><td>20 RPM / 200 RPD</td><td>20</td><td>~28 free models</td></tr>
+      <tr><td>Google AI Studio</td><td><code>generativelanguage.googleapis.com</code></td><td><code>GEMINI_API_KEY</code></td><td>15 RPM / 1500 RPD</td><td>15</td><td>1M context</td></tr>
+      <tr><td>Mistral</td><td><code>api.mistral.ai/v1</code></td><td><code>MISTRAL_API_KEY</code></td><td>~1B tokens/mo</td><td>Varies</td><td>May train on data</td></tr>
+      <tr><td>DeepSeek</td><td><code>api.deepseek.com/v1</code></td><td><code>DEEPSEEK_API_KEY</code></td><td>5M signup tokens</td><td>Varies</td><td>Expires 30 days</td></tr>
+      <tr><td>NVIDIA NIM</td><td><code>integrate.api.nvidia.com/v1</code></td><td><code>NVIDIA_API_KEY</code></td><td>Rate-limited</td><td>Varies</td><td>100+ models</td></tr>
+      <tr><td>GitHub Models</td><td><code>models.github.ai/inference</code></td><td><code>GITHUB_TOKEN</code></td><td>60 RPM / 1440 RPD</td><td>60</td><td>45+ models</td></tr>
+      <tr><td>HuggingFace</td><td><code>router.huggingface.co/v1</code></td><td><code>HF_TOKEN</code></td><td>$0.10/mo credits</td><td>200</td><td>Routes to 6 backends</td></tr>
+      <tr><td>Cerebras</td><td><code>api.cerebras.ai/v1</code></td><td><code>CEREBRAS_API_KEY</code></td><td>$5 credit, 5 RPM</td><td>5</td><td>Requires payment method</td></tr>
+      <tr><td>Cloudflare</td><td><code>workers-ai</code></td><td><code>CLOUDFLARE_API_TOKEN</code></td><td>10K Neurons/day</td><td>—</td><td>30+ models, edge</td></tr>
+    </tbody>
+  </table>
+
+  <h2>TTS Providers</h2>
+  <table><thead><tr><th>Provider</th><th>Free Tier</th><th>Env Key</th></tr></thead><tbody>
+    <tr><td>ElevenLabs</td><td>10K chars/month</td><td><code>ELEVENLABS_API_KEY</code></td></tr>
+    <tr><td>Groq Whisper</td><td>30 RPM / 1440 RPD</td><td><code>GROQ_API_KEY</code></td></tr>
+  </tbody></table>
+
+  <h2>Image Generation</h2>
+  <table><thead><tr><th>Provider</th><th>Free Tier</th><th>Env Key</th></tr></thead><tbody>
+    <tr><td>Stability AI</td><td>25 image credits on signup</td><td><code>STABILITY_API_KEY</code></td></tr>
+    <tr><td>Fal.ai</td><td>$1-2 credits on signup</td><td><code>FAL_KEY</code></td></tr>
+    <tr><td>DALL-E 3 (via pekpik)</td><td>$20-100 per shared key</td><td><code>sk-xxx token</code></td></tr>
+  </tbody></table>
+
+  <h2>Embeddings</h2>
+  <table><thead><tr><th>Provider</th><th>Free Tier</th><th>Env Key</th></tr></thead><tbody>
+    <tr><td>Ollama Embed</td><td>Unlimited (local)</td><td><code>OLLAMA_API_KEY</code></td></tr>
+    <tr><td>Voyage AI</td><td>50M tokens on signup</td><td><code>VOYAGE_API_KEY</code></td></tr>
+    <tr><td>Mistral Embed</td><td>~1B tokens/month</td><td><code>MISTRAL_API_KEY</code></td></tr>
+    <tr><td>Cohere</td><td>Trial with caps</td><td><code>COHERE_API_KEY</code></td></tr>
+  </tbody></table>
+
+  <p class="footer">Full details: <a href="./provider-registry.md">provider-registry.md</a></p>
+</body>
+</html>
