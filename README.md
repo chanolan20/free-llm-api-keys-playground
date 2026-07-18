@@ -315,15 +315,35 @@ print(f"Vector dimension: {len(response.data[0].embedding)}")
 | Provider | Models | Notes |
 |----------|--------|-------|
 | **OpenAI** | gpt-5.5, gpt-5.5-mini, gpt-5.5-nano, gpt-5.5-pro, gpt-4 | Latest GPT lineup |
-| **Anthropic** | claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5 | Latest Claude |
-| **DeepSeek** | deepseek-chat (V3), deepseek-reasoner (R1) | Chat + reasoning |
-| **Google** | gemini-3.1-flash-lite, gemini-3.1-flash-image | Gemini 3.1 |
+| **Anthropic** | claude-opus-4-7, claude-sonnet-4-6, claude-haiku-4-5 | Latest Claude |
+| **DeepSeek** | deepseek-chat (V3), deepseek-reasoner (R1), deepseek-v4-flash, deepseek-v4-pro | Chat + reasoning + v4 |
+| **Google** | gemini-3.1-flash-lite, gemini-3.1-flash-image, gemini-2.5-flash | Gemini 3.1 + 2.5 |
 | **xAI** | grok-4.20-beta, grok-4.20-multi-agent-beta | Latest Grok |
 | **Mistral** | mistral-medium, codestral, devstral, mistral-small | Code + chat |
 | **Cohere** | command-a-vision, command-a-reasoning, embed, rerank | Enterprise AI |
-| **More** | Qwen, GLM-5, Mercury, MiniMax, Seed | Continuously expanding |
+| **Kimi** | kimi-k2.5 | Long-context general model |
+| **NVIDIA** | nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free | Accelerated inference |
+| **OpenRouter** | openrouter/owl-alpha | Aggregated model routing |
+| **Poolside** | poolside/laguna-m.1, poolside/laguna-xs.2 | Code-specialized models |
+| **Qwen** | qwen3.6-flash | Lightweight fast model |
+| **GLM / Zhipu** | GLM-5, GLM-4.7 | Chinese LLM leader |
+| **More** | Mercury, MiniMax, Seed | Continuously expanding |**Direct free-tier alternatives (sign up separately):**
+- **Groq** — llama-3.3-70b, mixtral, Qwen3 via LPU. 30 RPM free. Ultra-fast inference.
+- **Cerebras** — Llama 3.1 8B/70B. 1M tokens/day free. Very high throughput.
+- **GitHub Models** — 45+ models (GPT-4o Mini, Phi-4). Free prototyping, 60 RPM.
+- **HuggingFace Inference** — 100K monthly credits, routes to Fireworks/Together/Novita/DeepInfra.
+- **Cloudflare Workers AI** — 10K requests/day free across 30+ models.
+- **ElevenLabs** — High-quality TTS. 10K chars/month free.
+- **Stability AI** — Stable Diffusion image gen. 25 free credits on signup.
+- **Fal.ai** — Flux image gen. $1-2 free credits on signup.
+- **Voyage AI** — High-quality embeddings. 50M free tokens on signup.
+- **Puter.js** — User-brings-their-own-key model. No backend API key needed.
+- **SambaNova** — Llama 3.1 405B free. High throughput.
+- **Hyperbolic** — Free inference credits on signup.
+- **Scaleway** — EU-hosted models. Free tier available.
 
 **Beyond chat:** Image generation (DALL-E 3), text-to-speech (TTS-1-HD), embeddings, reranking.
+
 
 ---
 
