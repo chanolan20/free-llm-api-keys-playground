@@ -34,7 +34,11 @@ Copy a key from the table below, paste it into your app, and start building.
 
 <div align="center">
 
-🧪 **[Try it in the Playground →](https://alistaitsacle.github.io/free-llm-api-keys/)** — paste a key, chat with 90+ models in your browser, no install
+🧪 **[Try it in the Playground →](https://chanolan20.github.io/free-llm-api-keys-playground/)** — paste a key, chat with 90+ models in your browser, no install
+
+📋 **[Quick Reference →](https://chanolan20.github.io/free-llm-api-keys-playground/cheat-sheet.html)** — free tier limits for 30+ providers
+
+📚 **[Full Provider Registry →](https://github.com/chanolan20/free-llm-api-keys-playground/blob/main/docs/provider-registry.md)** — detailed comparison with free caps and privacy notes
 
 </div>
 

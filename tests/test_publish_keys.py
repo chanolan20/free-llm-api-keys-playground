@@ -224,7 +224,7 @@ class PublishKeysTests(unittest.TestCase):
         self.assertIn("</details>\n\n---\n\n## 📈 Star History", updated)
 
     def test_update_readme_appends_changelog_inside_existing_details_block(self):
-        today = datetime.now().strftime("%Y-%m-%d")
+        today = publish_keys.date_stamp()
         readme = self.write_temp_readme(
             "## 📋 Available Keys\n"
             "\n"
